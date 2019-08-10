@@ -157,7 +157,7 @@ class RegulatoryApproval extends Component {
                                     .required('IS sample is required.'),
                                 ApprovalAverageReleaseTime: Yup.string()
                                     .required('Average release time is required'),
-                                ApprovalApprovalObtainingStage: Yup.boolean()
+                                ApprovalObtainingStage: Yup.boolean()
                                     .required('Is sample required'),
                                 ApprovalApprovalObtainingStage: Yup.string()
                                     .required('Obtaining stage is required')
@@ -204,9 +204,13 @@ class RegulatoryApproval extends Component {
 
                                         <div className=" col-6 form-box mt-2">
                                             <div className="form-group">
-                                                <label htmlFor="Reference">Sample Required</label>
-                                                <Field name="Reference" type="text" className={'form-control' + (errors.Reference && touched.Reference ? ' is-invalid' : '')} />
-                                                <ErrorMessage name="Reference" component="div" className="invalid-feedback" />
+                                                <label htmlFor="ApprovalSampleRequired">Sample Required</label>
+                                                 <Field name="ApprovalSampleRequired" component="select" className={'form-control' + (errors.supplierTransportMode && touched.supplierTransportMode ? ' is-invalid' : '')} >
+                                                    <option value="-"></option>
+                                                    <option value="Upon_raising_PO">Yes</option>
+                                                    <option value="After_On-boarding">No</option>
+                                                </Field>
+                                                <ErrorMessage name="ApprovalSampleRequired" component="div" className="invalid-feedback" />
                                             </div>
                                         </div>
 
@@ -216,12 +220,11 @@ class RegulatoryApproval extends Component {
                                                 <Field name="SampleRequired" type="checkbox" className={'form-control' + (errors.SampleRequired && touched.SampleRequired ? ' is-invalid' : '')} />
                                                 <ErrorMessage name="SampleRequired" component="div" className="invalid-feedback" />
                                             </div>
-
                                         </div>
-                                        <div className=" col-6 form-box mt-2">
+                                        <div className=" col-3 form-box mt-1">
                                             <div className="form-group">
-                                                <label htmlFor="ReleaseTimeInDays">ApprovalObtainingStage</label>
-                                                <Field name="supplierTransportMode" component="select" className={'form-control' + (errors.supplierTransportMode && touched.supplierTransportMode ? ' is-invalid' : '')} >
+                                                <label htmlFor="ApprovalObtainingStage">ApprovalObtainingStage</label>
+                                                <Field name="ApprovalObtainingStage" component="select" className={'form-control' + (errors.ApprovalObtainingStage && touched.ApprovalObtainingStage ? ' is-invalid' : '')} >
                                                     <option value="-"></option>
                                                     <option value="Upon_raising_PO">Upon raising PO</option>
                                                     <option value="After_On-boarding">After On-boarding</option>
@@ -229,7 +232,7 @@ class RegulatoryApproval extends Component {
                                                     <option value="Upon_sample_collection">Upon_sample_collection</option>
                                                     <option value="After_sample_verification">After sample verification</option>
                                                 </Field>
-                                                <ErrorMessage name="ReleaseTimeInDays" component="div" className="invalid-feedback" />
+                                                <ErrorMessage name="ApprovalObtainingStage" component="div" className="invalid-feedback" />
                                             </div>
                                         </div>
                                         <div className=" col-6 form-box mt-2">
