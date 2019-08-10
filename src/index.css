@@ -1,0 +1,14 @@
+body {
+  margin: 0;
+  font-family: 'Exo 2', sans-serif,-apple-system !important; 
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-image: url("../src/img/17580.jpg");
+  background-position: center;
+  color: #1A2B50 !important;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
+    monospace;
+}
