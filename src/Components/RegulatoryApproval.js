@@ -136,7 +136,7 @@ class RegulatoryApproval extends Component {
                         onAfterOpen={this.afterOpenModal}
                         onRequestClose={this.closeModal}
                    
-                        contentLabel="Example Modal">
+                        contentLabel="Regulatory Approval">
                         <Formik
                             initialValues={{
                                 ApprovalID: 'NEW_APPROVAL',
