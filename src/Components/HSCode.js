@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import Modal from 'react-modal';
-import { Formik, Field, Form, ErrorMessage, yupToFormErrors } from 'formik';
+import { Formik, Field, Form, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 
 var urlMaterialService = 'http://localhost:3010/';
@@ -10,7 +10,7 @@ class HSCode extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            hsHsCode: 'NEW_HS_CODE',
+            hsHsCode: '',
             hsDescription: '',
             hsUnit: '',
             hsCountry: '',
@@ -83,14 +83,15 @@ class HSCode extends Component {
     }
 
     onSubmitClick(fields) {
-        console.error(fields);
+       // console.error(fields);
         alert('1--SUCCESS!! :-)\n\n' + JSON.stringify(fields, null, 4))
-        var HS_ID = null;
+        var HS_ID = fields.hsHsCode; //'NEW_HS_CODE';
         var METHOD = 'POST'
-        if (fields.hsHsCode !== 'NEW_HS_CODE') {
+       /* if (fields.hsHsCode !== 'NEW_HS_CODE') {
             METHOD = 'PUT';
             HS_ID = fields.hsHsCode;
         }
+        */
         fetch(urlMaterialService + Client_ID + '/hs', {
             method: METHOD,
             body: JSON.stringify({
@@ -142,7 +143,7 @@ class HSCode extends Component {
                         contentLabel="HS Code">
                         <Formik
                             initialValues={{
-                                hsHsCode: 'NEW_HS_CODE',
+                                hsHsCode: '',
                                 hsDescription: '',
                                 hsUnit: '',
                                 hsCountry: '',
@@ -166,19 +167,19 @@ class HSCode extends Component {
                                     .required('Country is required'),
                                 hsDuty: Yup.string()
                                     .required('Duty is required'),
-                                hsGenDuty: Yup.string()
+                                hsGenDuty: Yup.number()
                                     .required('Gen Duty is required'),
-                                hsVAT: Yup.string()
+                                hsVAT: Yup.number()
                                     .required('VAT is required'),
-                                hsPAL: Yup.string()
+                                hsPAL: Yup.number()
                                     .required('PAL is required'),
-                                hsNBT: Yup.string()
+                                hsNBT: Yup.number()
                                     .required('NBT is required'),
-                                hsCess: Yup.string()
+                                hsCess: Yup.number()
                                     .required('Cess is required'),
-                                hsExcise: Yup.string()
+                                hsExcise: Yup.number()
                                     .required('Excise is required'),
-                                hsSCL: Yup.string()
+                                hsSCL: Yup.number()
                                     .required('SCL is required')
                                 })}
                                 onSubmit={fields => {
@@ -545,7 +546,7 @@ class HSCode extends Component {
                                         </div>
                                         <div className=" col-6 form-box mt-2">
                                             <div className="form-group">
-                                                <button type="button" className="btn btn-primary-bridge-close" onClick={this.closeModal} >Cancel</button>
+                                                <button type="button" className="btn btn-primary-bridge-close" onClick={this.closeModal} >Close</button>
                                                 <button type="submit" className="btn btn-primary-bridge">Save </button>
                                             </div>
                                         </div>
