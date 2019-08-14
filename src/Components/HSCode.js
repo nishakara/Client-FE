@@ -5,6 +5,7 @@ import * as Yup from 'yup';
 import Select from 'react-select'
 var BFF_URL = 'http://localhost:8081/';
 var Client_ID = '6e65ad20-d576-43f2-95fa-19daf959070d';
+let END_POINT = 'hscode';
 
 class HSCode extends Component {
     constructor(props) {
@@ -29,6 +30,8 @@ class HSCode extends Component {
         this.openModal = this.openModal.bind(this);
         this.afterOpenModal = this.afterOpenModal.bind(this);
         this.closeModal = this.closeModal.bind(this);
+        this.editClick = this.editClick.bind(this);
+
     }
 
     loadDropdown = (endPointUrl) => {
@@ -38,7 +41,7 @@ class HSCode extends Component {
             .then((data) => {
 
                 var arrOptions = [];
-                if (endPointUrl === 'hscode') {
+                if (endPointUrl === END_POINT) {
                     for (var k = 0; k < data.length; k++) {
                         arrOptions.push(<tr key={k}>
                             <td>{data[k].HsCode}</td>
@@ -52,8 +55,11 @@ class HSCode extends Component {
                             <td>{data[k].Excise}</td>
                             <td>{data[k].SCL}</td>
                             <td>{data[k].MType}</td>
+                            <td><button className="delete" onClick={() => this.editClick(k - 1)} > Change </button></td>
                         </tr>);
                     }
+
+                    this.setState({ hsCodeList: data });
                     this.setState({ hsCodeListOptions: arrOptions });
                 } else if (endPointUrl === 'countries') {
                     for (var key in data) {
@@ -66,15 +72,61 @@ class HSCode extends Component {
             })
             .catch(console.log)
     }
-
+    handleClick(item) {
+    }
     componentDidMount() {
-
-        this.loadDropdown('hscode');
         this.loadDropdown('countries');
+        this.loadDropdown(END_POINT);
     }
 
     openModal() {
         this.setState({ modalIsOpen: true });
+    }
+    editClick(id) {
+
+        this.setState({ isEditMode: true });
+        var hscode = this.state.hsCodeList[id].HsCode
+        var listOfcountries = this.state.countryCodeOptions;
+        let url = BFF_URL + END_POINT + '/' + hscode;
+        fetch(url)
+            .then(res => res.json())
+            .then((data) => {
+
+                if (data.length !== 0) {
+                    if (data) {
+
+                        var arrCountrylist = [];
+                        data.Countries.forEach(eachCountry);
+
+                        function eachCountry(item, index) {
+                            var code = item;
+                            listOfcountries.forEach(eachValue);
+                            function eachValue(item, index) {
+                                if (code === item.value) {
+                                    arrCountrylist.push(item)
+                                }
+                            }
+                        }
+
+                        this.setState({
+                            hsHsCode: data.HsCode,
+                            hsDescription: data.Description,
+                            hsUnit: data.Unit,
+                            hsDuty: data.GenDuty,
+                            hsGenDuty: data.GenDuty,
+                            hsVAT: data.VAT,
+                            hsPAL: data.PAL,
+                            hsNBT: data.NTB,
+                            hsCess: data.Cess,
+                            hsExcise: data.Excise,
+                            hsSCL: data.SCL,
+                            hsCountry: arrCountrylist
+                        });
+                        this.openModal();
+                    }
+                }
+            })
+            .catch(console.log)
     }
 
     afterOpenModal() {
@@ -84,6 +136,20 @@ class HSCode extends Component {
 
     closeModal() {
         this.setState({ modalIsOpen: false });
+        this.setState({
+            hsHsCode: '',
+            hsDescription: '',
+            hsUnit: '',
+            hsCountry: '',
+            hsDuty: '',
+            hsGenDuty: '',
+            hsVAT: '',
+            hsPAL: '',
+            hsNBT: '',
+            hsCess: '',
+            hsExcise: '',
+            hsSCL: '',
+        });
     }
 
     handleChange = hsCountry => {
@@ -92,25 +158,23 @@ class HSCode extends Component {
     };
 
     onSubmitClick(fields) {
-        // console.error(fields);
+
         var arrCounties = [];
         var i;
         for (i = 0; i < this.state.hsCountry.length; i++) {
             arrCounties.push(this.state.hsCountry[i].value);
         }
-        var HS_ID = fields.hsHsCode; //'NEW_HS_CODE';
+
         var METHOD = 'POST'
-        /* if (fields.hsHsCode !== 'NEW_HS_CODE') {
-             METHOD = 'PUT';
-             HS_ID = fields.hsHsCode;
-         }
-         */
 
+        if (this.state.isEditMode === true) {
+            METHOD = 'PUT'
+        }
 
-        fetch(BFF_URL + 'hscode', {
+        fetch(BFF_URL + END_POINT, {
             method: METHOD,
             body: JSON.stringify({
-                HsCode: HS_ID,
+                HsCode: fields.hsHsCode,
                 Description: fields.hsDescription,
                 Unit: fields.hsUnit,
                 GenDuty: fields.hsGenDuty,
@@ -127,11 +191,11 @@ class HSCode extends Component {
                 "Content-type": "application/json; charset=UTF-8", 'InitiatedBy': 'UAT USER', 'Client_ID': Client_ID
             }
         }).then(response => {
-
+            this.setState({ isEditMode: false });
             if (response.status === 200 || response.status === 201) {
                 alert('HS code is success fully saved');
             } else {
-               // alert('An error occurred while saving please try again');
+                alert('An error occurred while saving, please try again');
             }
             return;
         }).then(json => {
@@ -142,7 +206,7 @@ class HSCode extends Component {
     }
 
     render() {
-        const { hsCountry } = this.state;
+
         return (
             <div className="row pr-3 pl-3">
                 <div className="col-11 form-box mt-2 mb-4">
@@ -159,20 +223,20 @@ class HSCode extends Component {
 
                         contentLabel="HS Code">
                         <Formik
-                            initialValues={{
-                                hsHsCode: '',
-                                hsDescription: '',
-                                hsUnit: '',
-                                hsCountry: '',
-                                hsDuty: '',
-                                hsGenDuty: '',
-                                hsVAT: '',
-                                hsPAL: '',
-                                hsNBT: '',
-                                hsCess: '',
-                                hsExcise: '',
-                                hsSCL: ''
-                            }}
+                            /*    initialValues={{
+                                    hsHsCode: '',
+                                    hsDescription: '',
+                                    hsUnit: '',
+                                    hsCountry: '',
+                                    hsDuty: '',
+                                    hsGenDuty: '',
+                                    hsVAT: '',
+                                    hsPAL: '',
+                                    hsNBT: '',
+                                    hsCess: '',
+                                    hsExcise: '',
+                                    hsSCL: ''
+                                }}*/
                             validationSchema={Yup.object().shape({
                                 hsHsCode: Yup.string()
                                     .required('HS code is required'),
@@ -209,21 +273,21 @@ class HSCode extends Component {
                                         <div className="col-3 form-box mt-1">
                                             <div className="form-group">
                                                 <label htmlFor="hsHsCode">Hs Code</label>
-                                                <Field name="hsHsCode" type="text" className={'form-control' + (errors.hsHsCode && touched.hsHsCode ? ' is-invalid' : '')} />
+                                                <Field name="hsHsCode" type="text" value={this.state.hsHsCode} className={'form-control' + (errors.hsHsCode && touched.hsHsCode ? ' is-invalid' : '')} />
                                                 <ErrorMessage name="hsHsCode" component="div" className="invalid-feedback" />
                                             </div>
                                         </div>
                                         <div className="col-3 form-box mt-1">
                                             <div className="form-group">
                                                 <label htmlFor="hsUnit">Unit</label>
-                                                <Field name="hsUnit" type="text" className={'form-control' + (errors.hsUnit && touched.hsUnit ? ' is-invalid' : '')} />
+                                                <Field name="hsUnit" type="text" value={this.state.hsUnit} className={'form-control' + (errors.hsUnit && touched.hsUnit ? ' is-invalid' : '')} />
                                                 <ErrorMessage name="hsUnit" component="div" className="invalid-feedback" />
                                             </div>
                                         </div>
                                         <div className=" col-6 form-box mt-2">
                                             <div className="form-group">
                                                 <label htmlFor="hsCountry">Country</label>
-                                                <Select name="hsCountry" value={hsCountry} onChange={this.handleChange} isMulti={true} options={this.state.countryCodeOptions} />
+                                                <Select name="hsCountry" value={this.state.hsCountry} onChange={this.handleChange} isMulti={true} options={this.state.countryCodeOptions} />
                                                 <ErrorMessage name="hsCountry" component="div" className="invalid-feedback" />
                                             </div>
                                         </div>
@@ -231,7 +295,7 @@ class HSCode extends Component {
                                         <div className=" col-6 form-box mt-2">
                                             <div className="form-group">
                                                 <label htmlFor="hsDescription">Description</label>
-                                                <Field name="hsDescription" type="text" className={'form-control' + (errors.hsDescription && touched.hsDescription ? ' is-invalid' : '')} />
+                                                <Field name="hsDescription" value={this.state.hsDescription} type="text" className={'form-control' + (errors.hsDescription && touched.hsDescription ? ' is-invalid' : '')} />
                                                 <ErrorMessage name="hsDescription" component="div" className="invalid-feedback" />
                                             </div>
 
@@ -245,7 +309,7 @@ class HSCode extends Component {
                                         <div className="col-6 form-box mt-2">
                                             <div className="form-group">
                                                 <label htmlFor="hsDuty">Duty</label>
-                                                <Field name="hsDuty" type="text" className={'form-control' + (errors.hsDuty && touched.hsDuty ? ' is-invalid' : '')} />
+                                                <Field name="hsDuty" type="text" value={this.state.hsDuty} className={'form-control' + (errors.hsDuty && touched.hsDuty ? ' is-invalid' : '')} />
                                                 <ErrorMessage name="hsDuty" component="div" className="invalid-feedback" />
                                             </div>
 
@@ -254,7 +318,7 @@ class HSCode extends Component {
                                         <div className="col-6 form-box mt-2">
                                             <div className="form-group">
                                                 <label htmlFor="hsGenDuty">Gen Duty</label>
-                                                <Field name="hsGenDuty" type="text" className={'form-control' + (errors.hsGenDuty && touched.hsGenDuty ? ' is-invalid' : '')} />
+                                                <Field name="hsGenDuty" type="text" value={this.state.hsGenDuty} className={'form-control' + (errors.hsGenDuty && touched.hsGenDuty ? ' is-invalid' : '')} />
                                                 <ErrorMessage name="hsGenDuty" component="div" className="invalid-feedback" />
                                             </div>
 
@@ -262,7 +326,7 @@ class HSCode extends Component {
                                         <div className="col-6 form-box mt-2">
                                             <div className="form-group">
                                                 <label htmlFor="hsVAT">VAT</label>
-                                                <Field name="hsVAT" type="text" className={'form-control' + (errors.hsVAT && touched.hsVAT ? ' is-invalid' : '')} />
+                                                <Field name="hsVAT" type="text" value={this.state.hsVAT} className={'form-control' + (errors.hsVAT && touched.hsVAT ? ' is-invalid' : '')} />
                                                 <ErrorMessage name="hsVAT" component="div" className="invalid-feedback" />
                                             </div>
 
@@ -271,7 +335,7 @@ class HSCode extends Component {
                                         <div className="col-6 form-box mt-2">
                                             <div className="form-group">
                                                 <label htmlFor="hsPAL">PAL</label>
-                                                <Field name="hsPAL" type="text" className={'form-control' + (errors.hsPAL && touched.hsPAL ? ' is-invalid' : '')} />
+                                                <Field name="hsPAL" type="text" value={this.state.hsPAL} className={'form-control' + (errors.hsPAL && touched.hsPAL ? ' is-invalid' : '')} />
                                                 <ErrorMessage name="hsPAL" component="div" className="invalid-feedback" />
                                             </div>
 
@@ -279,7 +343,7 @@ class HSCode extends Component {
                                         <div className="col-6 form-box mt-2">
                                             <div className="form-group">
                                                 <label htmlFor="hsNBT">NBT</label>
-                                                <Field name="hsNBT" type="text" className={'form-control' + (errors.hsNBT && touched.hsNBT ? ' is-invalid' : '')} />
+                                                <Field name="hsNBT" type="text" value={this.state.hsNBT} className={'form-control' + (errors.hsNBT && touched.hsNBT ? ' is-invalid' : '')} />
                                                 <ErrorMessage name="hsNBT" component="div" className="invalid-feedback" />
                                             </div>
 
@@ -288,7 +352,7 @@ class HSCode extends Component {
                                         <div className="col-6 form-box mt-2">
                                             <div className="form-group">
                                                 <label htmlFor="hsCess">Cess</label>
-                                                <Field name="hsCess" type="text" className={'form-control' + (errors.hsCess && touched.hsCess ? ' is-invalid' : '')} />
+                                                <Field name="hsCess" type="text" value={this.state.hsCess} className={'form-control' + (errors.hsCess && touched.hsCess ? ' is-invalid' : '')} />
                                                 <ErrorMessage name="hshsCessPAL" component="div" className="invalid-feedback" />
                                             </div>
 
@@ -297,7 +361,7 @@ class HSCode extends Component {
                                         <div className="col-6 form-box mt-2">
                                             <div className="form-group">
                                                 <label htmlFor="hsExcise">Excise</label>
-                                                <Field name="hsExcise" type="text" className={'form-control' + (errors.hsExcise && touched.hsExcise ? ' is-invalid' : '')} />
+                                                <Field name="hsExcise" type="text" value={this.state.hsExcise} className={'form-control' + (errors.hsExcise && touched.hsExcise ? ' is-invalid' : '')} />
                                                 <ErrorMessage name="hsExcise" component="div" className="invalid-feedback" />
                                             </div>
 
@@ -306,7 +370,7 @@ class HSCode extends Component {
                                         <div className="col-6 form-box mt-2">
                                             <div className="form-group">
                                                 <label htmlFor="hsSCL">SCL</label>
-                                                <Field name="hsSCL" type="text" className={'form-control' + (errors.hsSCL && touched.hsSCL ? ' is-invalid' : '')} />
+                                                <Field name="hsSCL" type="text" value={this.state.hsSCL} className={'form-control' + (errors.hsSCL && touched.hsSCL ? ' is-invalid' : '')} />
                                                 <ErrorMessage name="hsSCL" component="div" className="invalid-feedback" />
                                             </div>
 
@@ -314,20 +378,20 @@ class HSCode extends Component {
 
 
                                         <div className="col-6 form-box mt-2">
-                                            <label for="exampleFormControlSelect1">Type </label>
+                                            <label htmlFor="exampleFormControlSelect1">Type </label>
                                             <table>
                                                 <tr>
                                                     <td>
                                                         <div class="form-check">
                                                             <input class="form-check-input" type="radio" name="Radio" id="weight" value="option1" checked></input>
-                                                            <label class="form-check-label" for="value"> Weight</label>
+                                                            <label class="form-check-label" htmlFor="value"> Weight</label>
                                                         </div>
                                                     </td>
 
                                                     <td>
                                                         <div class="form-check">
                                                             <input class="form-check-input" type="radio" name="Radio" id="values" value="option2"></input>
-                                                            <label class="form-check-label" for="value">Values</label>
+                                                            <label class="form-check-label" htmlFor="value">Values</label>
                                                         </div>
                                                     </td>
                                                     <td>
