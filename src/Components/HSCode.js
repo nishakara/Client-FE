@@ -55,7 +55,7 @@ class HSCode extends Component {
                             <td>{data[k].Excise}</td>
                             <td>{data[k].SCL}</td>
                             <td>{data[k].MType}</td>
-                            <td><button className="delete" onClick={() => this.editClick(k - 1)} > Change </button></td>
+                            <td><button className="delete" onClick={() => this.editClick(this.state.k - 1)} > Change </button></td>
                         </tr>);
                     }
 
@@ -152,11 +152,15 @@ class HSCode extends Component {
         });
     }
 
-    handleChange = hsCountry => {
+   /* handleChange = hsCountry => {
         this.setState({ hsCountry });
         console.log(`Option selected:`, hsCountry);
     };
-
+    */
+    handleChange(event) {
+        this.setState({value: event.target.value});
+      }
+    
     onSubmitClick(fields) {
 
         var arrCounties = [];
@@ -223,8 +227,8 @@ class HSCode extends Component {
 
                         contentLabel="HS Code">
                         <Formik
-                            /*    initialValues={{
-                                    hsHsCode: '',
+                             initialValues={{
+                                  /*  hsHsCode: '',
                                     hsDescription: '',
                                     hsUnit: '',
                                     hsCountry: '',
@@ -235,8 +239,8 @@ class HSCode extends Component {
                                     hsNBT: '',
                                     hsCess: '',
                                     hsExcise: '',
-                                    hsSCL: ''
-                                }}*/
+                                    hsSCL: ''*/
+                                }}
                             validationSchema={Yup.object().shape({
                                 hsHsCode: Yup.string()
                                     .required('HS code is required'),
@@ -273,7 +277,7 @@ class HSCode extends Component {
                                         <div className="col-3 form-box mt-1">
                                             <div className="form-group">
                                                 <label htmlFor="hsHsCode">Hs Code</label>
-                                                <Field name="hsHsCode" type="text" value={this.state.hsHsCode} className={'form-control' + (errors.hsHsCode && touched.hsHsCode ? ' is-invalid' : '')} />
+                                                <Field name="hsHsCode" type="text" value={this.state.hsHsCode} onChange={this.handleChange}  className={'form-control' + (errors.hsHsCode && touched.hsHsCode ? ' is-invalid' : '')} />
                                                 <ErrorMessage name="hsHsCode" component="div" className="invalid-feedback" />
                                             </div>
                                         </div>
@@ -295,7 +299,7 @@ class HSCode extends Component {
                                         <div className=" col-6 form-box mt-2">
                                             <div className="form-group">
                                                 <label htmlFor="hsDescription">Description</label>
-                                                <Field name="hsDescription" value={this.state.hsDescription} type="text" className={'form-control' + (errors.hsDescription && touched.hsDescription ? ' is-invalid' : '')} />
+                                                <Field name="hsDescription" type="text" className={'form-control' + (errors.hsDescription && touched.hsDescription ? ' is-invalid' : '')} >{this.state.hsDescription}  </Field>
                                                 <ErrorMessage name="hsDescription" component="div" className="invalid-feedback" />
                                             </div>
 

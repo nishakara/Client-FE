@@ -3,30 +3,39 @@ import Modal from 'react-modal';
 import { Formik, Field, Form, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 
-var urlMaterialService = 'http://localhost:3010/';
-var Client_ID = '6e65ad20-d576-43f2-95fa-19daf959070d';
+var BFF_URL = 'http://localhost:8081/';
+let END_POINT = 'regapproval';
 
 class RegulatoryApproval extends Component {
     constructor(props) {
         super(props);
         this.state = {
             ApprovalID: 'NEW_APPROVAL',
+            nameValue: '',
             ApprovalInstitute: '',
             ApprovalTestName: '',
             ApprovalReleaseTimeInDays: 0,
             ApprovalSampleRequired: false,
-            ApprovalAverageReleaseTime: 0, 
+            ApprovalAverageReleaseTime: 0,
             ApprovalObtainingStage: '',
             IsActive: false,
             CreatedBy: '',
+            AttachmentsID: '',
+            AttachmentsDocument: '',
+            AttachmentsDescription: '',
+            AttachmentsMandatory: '',
+            AttachmentsOpetation: 0,
+            ApprovalList:[],
+            Approvalattachments: [],
+            AttachmentsOpetationRows: '',
             fields: {}
         };
         this.onSubmitClick = this.onSubmitClick.bind(this);
-        this.handleChange = this.handleChange.bind(this);
         this.openModal = this.openModal.bind(this);
-        this.afterOpenModal = this.afterOpenModal.bind(this);
         this.closeModal = this.closeModal.bind(this);
+        this.onLoadAttachement = this.onLoadAttachement.bind(this);
         this.onEditClick = this.onEditClick.bind(this);
+        this.onChangehandler = this.onChangehandler.bind(this);
 
     }
 
@@ -38,73 +47,178 @@ class RegulatoryApproval extends Component {
                 for (var k = 0; k < data.length; k++) {
                     console.log(data[k])
                     arrOptions.push(<tr key={k}>
-                    <td>{data[k].Institute}</td>
-                    <td>{data[k].TestName}</td>
-                    <td>{data[k].ReleaseTimeInDays}</td>
-                    <td>{data[k].SampleRequired}</td>
-                    <td>{data[k].AverageReleaseTime}</td>
-                    <td>{data[k].ApprovalObtainingStage}</td>
+                        <td>{data[k].Institute}</td>
+                        <td>{data[k].TestName}</td>
+                        <td>{data[k].ReleaseTimeInDays}</td>
+                        <td>{data[k].SampleRequired}</td>
+                        <td>{data[k].AverageReleaseTime}</td>
+                        <td>{data[k].ApprovalObtainingStage}</td>
+                        <td><button className="delete" onClick={() => this.editClick(k)} > Change </button></td>
                     </tr>);
                 }
+                
+                this.setState({ ApprovalList: data });
                 this.setState({ approvalListOptions: arrOptions });
             })
             .catch(console.log)
     }
 
     componentDidMount() {
-        this.loadDropdown(urlMaterialService + Client_ID +'/regapproval')
+        this.loadDropdown(BFF_URL + END_POINT)
     }
 
     openModal() {
         this.setState({ modalIsOpen: true });
     }
 
-    afterOpenModal() {
-        // references are now sync'd and can be accessed.
-        // this.subtitle.style.color = '#f00';
-    }
-
     closeModal() {
         this.setState({ modalIsOpen: false });
     }
 
-    handleChange(evt) {
-        // check it out: we get the evt.target.name (which will be either "email" or "password")
-        // and use it to target the key on our `state` object with the same name, using bracket syntax
-        this.setState({ [evt.target.name]: evt.target.value });
+    onEditClick(attachment) {
+        this.setState({
+            AttachmentsID: attachment.ID,
+            AttachmentsDocument: attachment.document,
+            AttachmentsDescription: attachment.description,
+            AttachmentsMandatory: attachment.mandatory,
+            AttachmentsOpetation: 1
+        });
     }
-    onEditClick(id){
+
+    editClick(id) {
+        this.setState({ isEditMode: true });
+        let url = BFF_URL + END_POINT + '/' + this.state.ApprovalList[id].ID;
+        fetch(url)
+            .then(res => res.json())
+            .then((data) => {
+
+                if (data.length !== 0) {
+                    if (data) {
+
+                        var arrDocuments = [];
+                        for (var k = 0; k < data.Attachments.length; k++) {
+                            var attachment = data.Attachments[k];
+                            arrDocuments.push({ ID: attachment.ID, document: attachment.DocumentName, Description: attachment.Description, mandatory: attachment.Mandatory });
+                        }
+
+                        this.setState({
+                            ApprovalID: data.ID,
+                            ApprovalInstitute: data.Institute,
+                            ApprovalTestName: data.TestName,
+                            ApprovalReleaseTimeInDays: data.ReleaseTimeInDays,
+                            ApprovalSampleRequired: data.SampleRequired,
+                            ApprovalAverageReleaseTime: data.AverageReleaseTime,
+                            ApprovalObtainingStage: data.ObtainingStage,
+                            Approvalattachments: arrDocuments
+                        });
+
+
+                        this.openModal();
+                    }
+                }
+            })
+            .catch(console.log)
+    }
+    onChangehandler(event) {
+        console.log(event.target.name + ' : ' + event.target.value);
+        this.setState({
+            [event.target.name]: event.target.value
+        });
+    }
+
+    onAttachementReset() {
+        this.setState({
+            AttachmentsID: '-',
+            AttachmentsDocument: '',
+            AttachmentsDescription: '',
+            AttachmentsMandatory: ''
+        })
+    }
+    onAttachementSave(id) {
+
+        if (this.state.AttachmentsDocument.trim() === '') {
+            alert(' Document name is required.');
+            return;
+        }
+        if (this.state.AttachmentsMandatory.trim() === '-') {
+            alert(' Is this document required.');
+            return;
+        }
+
+        if (this.state.AttachmentsOpetation === 0) {
+            this.state.Approvalattachments.push({ ID: 'New', document: this.state.AttachmentsDocument, description: this.state.AttachmentsDescription, mandatory: this.state.AttachmentsMandatory })
+
+        } else if (this.state.AttachmentsOpetation === 1) {
+            this.state.Approvalattachments[id] = { ID: this.state.AttachmentsID, document: this.state.AttachmentsDocument, description: this.state.AttachmentsDescription, mandatory: this.state.AttachmentsMandatory }
+        }
+        this.setState({
+            AttachmentsID: '-',
+            AttachmentsDocument: '',
+            AttachmentsDescription: '',
+            AttachmentsMandatory: ''
+        });
+        this.onLoadAttachement();
+    }
+
+    onRemove(id) {
         alert(id);
+        this.state.Approvalattachments.splice(id, 1);
+        this.onLoadAttachement();
     }
-    onSubmitClick(fields) {
-        console.error(fields);
+
+
+    onLoadAttachement() {
+        var rows = this.state.Approvalattachments.map((attachment, i) => {
+            return (
+                <tr >
+                    <td>{attachment.ID}</td>
+                    <td>{attachment.document}</td>
+                    <td>{attachment.description}</td>
+                    <td>{attachment.mandatory}</td>
+                    <td>
+                        <button type="button" key={i} className="btn btn-primary-bridge-close" onClick={() => this.onEditClick(attachment)}>Edit</button>
+                        <button type="button" key={i} className="btn btn-primary-bridge-close" onClick={() => this.onRemove(i)}>Remove</button>
+                    </td>
+                </tr>
+            );
+        });
+
+        this.setState({ AttachmentsOpetationRows: rows });
+    }
+    onSubmitClick() {
+
         var APPROVAL_ID = null;
         var METHOD = 'POST'
-        if (fields.ApprovalID !== 'NEW_APPROVAL') {
+        if (this.state.ApprovalID !== 'NEW_APPROVAL') {
             METHOD = 'PUT';
-            APPROVAL_ID = fields.ApprovalID;
+            APPROVAL_ID = this.state.ApprovalID;
         }
-        fetch(urlMaterialService + Client_ID + '/regapproval', {
+        console.error('METHOD : ==>' + METHOD);
+        var arrDocuments = [];
+
+        for (var k = 0; k < this.state.Approvalattachments.length; k++) {
+            var attachment = this.state.Approvalattachments[k]
+            arrDocuments.push({ ID: attachment.ID, RegulatoryApproval_ID: APPROVAL_ID, DocumentName: attachment.document, Description: attachment.description, Mandatory: attachment.mandatory });
+        }
+
+        fetch(BFF_URL + END_POINT, {
             method: METHOD,
             body: JSON.stringify({
-
-                ID : APPROVAL_ID,
-                Institute : fields.ApprovalInstitute,
-                TestName : fields.ApprovalTestName,
-                ReleaseTimeInDays : fields.ApprovalReleaseTimeInDays,
-                SampleRequired : fields.ApprovalSampleRequired,
-                AverageReleaseTime : fields.ApprovalAverageReleaseTime,
-                ObtainingStage : fields.ApprovalObtainingStage,
-                IsActive : fields.ApprovalIsActive,
-                Parent_ID : fields.ApprovalParent_ID,
-                CreatedBy: fields.ApprovalCreatedBy,
-                CreatedTime : fields.ApprovalCreatedTime,
-                Attachments: [{DocumentName: fields.AttachmentsDocument,
-                    Description:fields.AttachmentsDescription,
-                    Mandatory:fields.AttachmentsMandatory}]
+                ID: APPROVAL_ID,
+                Institute: this.state.ApprovalInstitute,
+                TestName: this.state.ApprovalTestName,
+                ReleaseTimeInDays: this.state.ApprovalReleaseTimeInDays,
+                SampleRequired: this.state.ApprovalSampleRequired,
+                AverageReleaseTime: this.state.ApprovalAverageReleaseTime,
+                ObtainingStage: this.state.ApprovalObtainingStage,
+                IsActive: this.state.ApprovalIsActive,
+                Parent_ID: this.state.ApprovalParent_ID,
+                CreatedBy: this.state.ApprovalCreatedBy,
+                CreatedTime: this.state.ApprovalCreatedTime,
+                Attachments: arrDocuments
             }),
             headers: {
-                "Content-type": "application/json; charset=UTF-8",'InitiatedBy': 'UAT USER','Client_ID': Client_ID
+                "Content-type": "application/json; charset=UTF-8"
             }
         }).then(response => {
 
@@ -113,7 +227,7 @@ class RegulatoryApproval extends Component {
             } else {
                 alert('An error occurred while saving please try again');
             }
-            return ;//response.json()
+            return;//response.json()
         }).then(json => {
             this.setState({
                 user: json
@@ -135,38 +249,21 @@ class RegulatoryApproval extends Component {
                         isOpen={this.state.modalIsOpen}
                         onAfterOpen={this.afterOpenModal}
                         onRequestClose={this.closeModal}
-                   
+
                         contentLabel="Regulatory Approval">
                         <Formik
                             initialValues={{
-                                ApprovalID: 'NEW_APPROVAL',
+                              /*  ApprovalID: 'NEW_APPROVAL',
                                 ApprovalInstitute: '',
                                 ApprovalTestName: '',
                                 ApprovalReleaseTimeInDays: 0,
                                 ApprovalSampleRequired: false,
-                                ApprovalAverageReleaseTime: 0, 
-                                ApprovalObtainingStage: ''
+                                ApprovalAverageReleaseTime: 0,
+                                ApprovalObtainingStage: ''*/
                             }}
-                            validationSchema={Yup.object().shape({
-                                ApprovalID: Yup.string()
-                                    .required('Approval id is required'),
-                                ApprovalInstitute: Yup.string()
-                                    .required('Institute type is required.'),
-                                ApprovalTestName: Yup.string()
-                                    .required('Test name type is required.'),
-                                ApprovalReleaseTimeInDays: Yup.number().required().positive().integer()
-                                    .required('Release time required.'),
-                                ApprovalSampleRequired: Yup.string()
-                                    .required('IS sample is required.'),
-                                ApprovalAverageReleaseTime: Yup.number().required().positive().integer()
-                                    .required('Average release time is required'),
-                                ApprovalObtainingStage: Yup.string()
-                                    .required('Is sample required'),
-                                AttachmentsDocument: Yup.string()
-                                .required('Is sample required'),
-                            })}
+
                             onSubmit={fields => {
-                                this.onSubmitClick(fields);
+                                this.onSubmitClick();
                             }}
                             render={({ errors, status, touched }) => (
                                 <Form>
@@ -175,7 +272,7 @@ class RegulatoryApproval extends Component {
                                         <div className="col-3 form-box mt-1">
                                             <div className="form-group">
                                                 <label htmlFor="ApprovalID">Approval ID</label>
-                                                <Field name="ApprovalID" type="text" className={'form-control' + (errors.ApprovalID && touched.ApprovalID ? ' is-invalid' : '')} />
+                                                <Field name="ApprovalID" type="text" value={this.state.ApprovalID} onChange={this.onChangehandler.bind(this)} className={'form-control' + (errors.ApprovalID && touched.ApprovalID ? ' is-invalid' : '')} />
                                                 <ErrorMessage name="ApprovalID" component="div" className="invalid-feedback" />
                                             </div>
                                         </div>
@@ -183,15 +280,16 @@ class RegulatoryApproval extends Component {
                                         <div className=" col-6 form-box mt-2">
                                             <div className="form-group">
                                                 <label htmlFor="ApprovalInstitute">Institute</label>
-                                                <Field name="ApprovalInstitute" type="text" className={'form-control' + (errors.ApprovalInstitute && touched.ApprovalInstitute ? ' is-invalid' : '')} />
+                                                <Field name="ApprovalInstitute" onChange={this.onChangehandler.bind(this)}
+                                                    value={this.state.ApprovalInstitute} className={'form-control' + (errors.ApprovalInstitute && touched.ApprovalInstitute ? ' is-invalid' : '')} />
                                                 <ErrorMessage name="ApprovalInstitute" component="div" className="invalid-feedback" />
                                             </div>
                                         </div>
 
                                         <div className=" col-6 form-box mt-2">
                                             <div className="form-group">
-                                                <label htmlFor="ApprovalTestName">TestName</label>
-                                                <Field name="ApprovalTestName" type="text" className={'form-control' + (errors.ApprovalTestName && touched.ApprovalTestName ? ' is-invalid' : '')} />
+                                                <label htmlFor="ApprovalTestName">Test Name</label>
+                                                <Field name="ApprovalTestName" type="text" value={this.state.ApprovalTestName} onChange={this.onChangehandler.bind(this)} className={'form-control' + (errors.ApprovalTestName && touched.ApprovalTestName ? ' is-invalid' : '')} />
                                                 <ErrorMessage name="ApprovalTestName" component="div" className="invalid-feedback" />
                                             </div>
                                         </div>
@@ -199,7 +297,7 @@ class RegulatoryApproval extends Component {
                                         <div className=" col-3 form-box mt-1">
                                             <div className="form-group">
                                                 <label htmlFor="ApprovalReleaseTimeInDays">Release Time(Days)</label>
-                                                <Field name="ApprovalReleaseTimeInDays" type="text" className={'form-control' + (errors.ApprovalReleaseTimeInDays && touched.ApprovalReleaseTimeInDays ? ' is-invalid' : '')} />
+                                                <Field name="ApprovalReleaseTimeInDays" value={this.state.ApprovalReleaseTimeInDays} type="text" onChange={this.onChangehandler.bind(this)} className={'form-control' + (errors.ApprovalReleaseTimeInDays && touched.ApprovalReleaseTimeInDays ? ' is-invalid' : '')} />
                                                 <ErrorMessage name="ApprovalReleaseTimeInDays" component="div" className="invalid-feedback" />
                                             </div>
                                         </div>
@@ -207,7 +305,7 @@ class RegulatoryApproval extends Component {
                                         <div className=" col-3 form-box mt-1">
                                             <div className="form-group">
                                                 <label htmlFor="ApprovalSampleRequired">Sample Required</label>
-                                                 <Field name="ApprovalSampleRequired" component="select" className={'form-control' + (errors.supplierTransportMode && touched.supplierTransportMode ? ' is-invalid' : '')} >
+                                                <Field name="ApprovalSampleRequired" value={this.state.ApprovalSampleRequired} component="select" onChange={this.onChangehandler.bind(this)} className={'form-control' + (errors.supplierTransportMode && touched.supplierTransportMode ? ' is-invalid' : '')} >
                                                     <option value="-"></option>
                                                     <option value="Upon_raising_PO">Yes</option>
                                                     <option value="After_On-boarding">No</option>
@@ -219,14 +317,14 @@ class RegulatoryApproval extends Component {
                                         <div className=" col-3 form-box mt-1">
                                             <div className="form-group">
                                                 <label htmlFor="ApprovalAverageReleaseTime">Average Release Time</label>
-                                                <Field name="ApprovalAverageReleaseTime" type="text" className={'form-control' + (errors.ApprovalAverageReleaseTime && touched.ApprovalAverageReleaseTime ? ' is-invalid' : '')} />
+                                                <Field name="ApprovalAverageReleaseTime" value={this.state.ApprovalAverageReleaseTime} type="text" onChange={this.onChangehandler.bind(this)} className={'form-control' + (errors.ApprovalAverageReleaseTime && touched.ApprovalAverageReleaseTime ? ' is-invalid' : '')} />
                                                 <ErrorMessage name="ApprovalAverageReleaseTime" component="div" className="invalid-feedback" />
                                             </div>
                                         </div>
                                         <div className=" col-3 form-box mt-1">
                                             <div className="form-group">
                                                 <label htmlFor="ApprovalObtainingStage">Approval Obtaining Stage</label>
-                                                <Field name="ApprovalObtainingStage" component="select" className={'form-control' + (errors.ApprovalObtainingStage && touched.ApprovalObtainingStage ? ' is-invalid' : '')} >
+                                                <Field name="ApprovalObtainingStage" value={this.state.ApprovalObtainingStage} component="select" onChange={this.onChangehandler.bind(this)} className={'form-control' + (errors.ApprovalObtainingStage && touched.ApprovalObtainingStage ? ' is-invalid' : '')} >
                                                     <option value="-"></option>
                                                     <option value="Upon_raising_PO">Upon raising PO</option>
                                                     <option value="After_On-boarding">After On-boarding</option>
@@ -241,28 +339,54 @@ class RegulatoryApproval extends Component {
 
                                         </div>
                                         <div className=" col-12 form-box mt-4">   <h6 className="pb-3">Attachments</h6>  </div>
+
                                         <div className=" col-3 form-box mt-1">
                                             <div className="form-group">
                                                 <label htmlFor="AttachmentsDocument">Document</label>
-                                                <Field name="AttachmentsDocument" type="text" className={'form-control' + (errors.AttachmentsDocument && touched.AttachmentsDocument ? ' is-invalid' : '')} />
-                                                <ErrorMessage name="AttachmentsDocument" component="div" className="invalid-feedback" />
+                                                <Field name="AttachmentsDocument" value={this.state.AttachmentsDocument} onChange={this.onChangehandler.bind(this)} type="text" className={'form-control' + (errors.AttachmentsDocument && touched.AttachmentsDocument ? ' is-invalid' : '')} />
                                             </div>
                                         </div>
                                         <div className=" col-3 form-box mt-1">
                                             <div className="form-group">
                                                 <label htmlFor="AttachmentsDescription">Description</label>
-                                                <Field name="AttachmentsDescription" type="text" className={'form-control' + (errors.AttachmentsDescription && touched.AttachmentsDescription ? ' is-invalid' : '')} />
-                                                <ErrorMessage name="AttachmentsDescription" component="div" className="invalid-feedback" />
+                                                <Field name="AttachmentsDescription" value={this.state.AttachmentsDescription} onChange={this.onChangehandler.bind(this)} type="text" className={'form-control' + (errors.AttachmentsDescription && touched.AttachmentsDescription ? ' is-invalid' : '')} />
                                             </div>
                                         </div>
                                         <div className=" col-3 form-box mt-1">
                                             <div className="form-group">
                                                 <label htmlFor="AttachmentsMandatory">Mandatory</label>
-                                                <Field name="AttachmentsMandatory" type="text" className={'form-control' + (errors.AttachmentsMandatory && touched.AttachmentsMandatory ? ' is-invalid' : '')} />
-                                                <ErrorMessage name="AttachmentsMandatory" component="div" className="invalid-feedback" />
+                                                <Field name="AttachmentsMandatory" value={this.state.AttachmentsMandatory} onChange={this.onChangehandler.bind(this)} component="select" className={'form-control' + (errors.AttachmentsMandatory && touched.AttachmentsMandatory ? ' is-invalid' : '')} >
+                                                    <option value="-"></option>
+                                                    <option value="No">No</option>
+                                                    <option value="Yes">Yes</option>
+                                                </Field>
+
                                             </div>
                                         </div>
-                                       
+                                        <div className=" col-3 form-box mt-1">
+                                            <div className="form-group">
+                                                <label htmlFor="attachmentActionButton">Action </label>
+                                                <button type="button" name="attachmentActionButton" onClick={this.onAttachementSave.bind(this)}>Save</button>
+                                                <button type="button" name="attachmentActionButton" onClick={this.onAttachementReset.bind(this)}>Reset</button>
+                                            </div>
+                                        </div>
+
+                                        <div className=" col-12 form-box mt-4">
+                                            <table className="table table-hover">
+                                                <thead className="material-table-th">
+                                                    <tr>
+                                                        <th scope="col"></th>
+                                                        <th scope="col">Attachments</th>
+                                                        <th scope="col">Description </th>
+                                                        <th scope="col"> Mandatory </th>
+                                                        <th scope="col"> Edit Delete </th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {this.state.AttachmentsOpetationRows}
+                                                </tbody>
+                                            </table>
+                                        </div>
                                         <div className=" col-6 form-box mt-2">
                                             <div className="form-group">
                                                 <button type="button" className="btn btn-primary-bridge-close" onClick={this.closeModal} >Cancel</button>
@@ -286,6 +410,7 @@ class RegulatoryApproval extends Component {
                                 <th scope="col">Sample Required</th>
                                 <th scope="col">Average Release Time</th>
                                 <th scope="col">Approval Obtaining Stage</th>
+                                <th scope="col">Edit</th>
                             </tr>
                         </thead>
                         <tbody>

@@ -2,47 +2,60 @@ import React, { Component } from 'react';
 import Modal from 'react-modal';
 import { Formik, Field, Form, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
+import Select from 'react-select'
 
-var urlMaterialService = 'http://localhost:3010/1001/'
+var BFF_URL = 'http://localhost:8081/';
+let END_POINT = 'tradeagreement';
 
 class TradeAgreements extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            AgreementID: '',
-            AgreementType: '',
-            AgreementApplicableTariff: '',
-            AgreementDocumentRef: ''
+            AgreementID: 'NEW_AGREEMENT',
+            AgreementName: '',
+            AgreementDescription: '',
+            AgreementAttachment: '',
+            AgreementCountries: []
         };
-        this.onMaterialClick = this.onMaterialClick.bind(this);
-        this.handleChange = this.handleChange.bind(this);
+        this.onSumbmitClick = this.onSumbmitClick.bind(this);
         this.openModal = this.openModal.bind(this);
         this.afterOpenModal = this.afterOpenModal.bind(this);
         this.closeModal = this.closeModal.bind(this);
+        this.handleChange = this.handleChange.bind(this);
     }
 
     loadDropdown = (endPointUrl) => {
-        fetch(endPointUrl)
+        let url = BFF_URL + endPointUrl;
+        fetch(url)
             .then(res => res.json())
             .then((data) => {
                 var arrOptions = [];
-                for (var k = 0; k < data.length; k++) {
-                    arrOptions.push(<tr key={k}>
-                    <td>{data[k].AgreementType}</td>
-                    <td>{data[k].ApplicableTariff}</td>
-                    <td>{data[k].DocumentRef}</td>
-                    </tr>);
-                    break;
+                if (endPointUrl === END_POINT) {
+                    for (var k = 0; k < data.length; k++) {
+                        arrOptions.push(<tr key={k}>
+                            <td>{data[k].Agreement}</td>
+                            <td>{data[k].Description}</td>
+                            <td>{data[k].Attachment}</td>
+                            <td>{data[k].Attachment}</td>
+                        </tr>);
+                    }
+                    this.setState({ supplierListOptions: arrOptions });
+                } else if (endPointUrl === 'countries') {
+                    for (var key in data) {
+                        if (data.hasOwnProperty(key)) {
+                            arrOptions.push(<option value={key}> {data[key]} </option>);
+                        }
+                    }
+                    this.setState({ countryCodeOptions: data });
                 }
-                this.setState({ supplierListOptions: arrOptions });
+
             })
             .catch(console.log)
     }
 
     componentDidMount() {
-
-        this.loadDropdown(urlMaterialService + 'tradeagreement')
-
+        this.loadDropdown(END_POINT);
+        this.loadDropdown('countries');
     }
 
     openModal() {
@@ -58,28 +71,32 @@ class TradeAgreements extends Component {
         this.setState({ modalIsOpen: false });
     }
 
-    handleChange(evt) {
-        // check it out: we get the evt.target.name (which will be either "email" or "password")
-        // and use it to target the key on our `state` object with the same name, using bracket syntax
-        this.setState({ [evt.target.name]: evt.target.value });
-    }
+    handleChange = (name, value) => {
+        this.setState({...this.state, [name]: value});
+    };
 
-    onMaterialClick(fields) {
-        console.error(fields);
-        alert('1--SUCCESS!! :-)\n\n' + JSON.stringify(fields, null, 4))
-        var mtID = null;
+    onSumbmitClick(fields) {
+        var AGREEMENT_ID = 'NEW_AGREEMENT';
         var METHOD = 'POST'
-        if (fields.materialID !== 'NEW_SUPPLIER') {
+        if (this.state.AgreementID !== AGREEMENT_ID) {
             METHOD = 'PUT';
-            mtID = fields.materialID;
+            AGREEMENT_ID = this.state.AGREEMENT_ID;
         }
-        fetch(urlMaterialService + 'tradeagreement', {
+
+        var arrCounties = [];
+        var i;
+        for (i = 0; i < this.state.AgreementCountries.length; i++) {
+            arrCounties.push(this.state.AgreementCountries[i].value);
+        }
+
+        fetch(BFF_URL + END_POINT, {
             method: METHOD,
             body: JSON.stringify({
-                ID: fields.AgreementID,
-                AgreementType: fields.AgreementType,
-                ApplicableTariff:  fields.AgreementApplicableTariff,
-                DocumentRef:  fields.AgreementDocumentRef
+                ID: AGREEMENT_ID,
+                Agreement: this.state.AgreementName,
+                Description: this.state.AgreementDescription,
+                Attachment: this.state.AgreementAttachment,
+                Countries: arrCounties
             }),
             headers: {
                 "Content-type": "application/json; charset=UTF-8"
@@ -113,62 +130,70 @@ class TradeAgreements extends Component {
                         isOpen={this.state.modalIsOpen}
                         onAfterOpen={this.afterOpenModal}
                         onRequestClose={this.closeModal}
-                   
+
                         contentLabel="Example Modal">
                         <Formik
-                            initialValues={{
-                                AgreementID: '',
-                                AgreementType: '',
-                                AgreementApplicableTariff: '',
-                                AgreementDocumentRef: '',
+                           /*   initialValues={{
+                                AgreementID: 'NEW_AGREEMENT',
+                                AgreementName: '',
+                                AgreementDescription: '',
+                                AgreementAttachment: '',
+                                AgreementCountries: []
                             }}
-                            validationSchema={Yup.object().shape({
+                          validationSchema={Yup.object().shape({
                                 AgreementID: Yup.string()
                                     .required('Agreement ID is required'),
-                                AgreementType: Yup.string()
-                                    .required('Agreement type is required.'),
-                                AgreementApplicableTariff: yup.number()
-                                    .required('Applicable ariff is required.')
-                            })}
+                                AgreementName: Yup.string()
+                                    .required('Agreement name is required.'),
+                                AgreementDescription: Yup.string()
+                                .required('Description  is required.')
+                            })}*/
                             onSubmit={fields => {
-                                this.onMaterialClick(fields);
+                                this.onSumbmitClick(fields);
                             }}
                             render={({ errors, status, touched }) => (
-                                <Form>
+                                <Form  onSubmit={this.props.handleSubmit}>
                                     <div className="row pr-3 pl-3">
                                         <div className="col-6 form-box mt-2">
                                             <div className="form-group">
                                                 <label htmlFor="AgreementID">Agreement ID</label>
-                                                <Field name="AgreementID" type="text" className={'form-control' + (errors.AgreementID && touched.AgreementID ? ' is-invalid' : '')} />
+                                                <Field name="AgreementID" type="text" value={this.state.AgreementID.value} onChange={this.handleChange.bind(this,'AgreementID')} className={'form-control' + (errors.AgreementID && touched.AgreementID ? ' is-invalid' : '')} />
                                                 <ErrorMessage name="AgreementID" component="div" className="invalid-feedback" />
                                             </div>
                                         </div>
 
                                         <div className=" col-6 form-box mt-2">
                                             <div className="form-group">
-                                                <label htmlFor="AgreementType">Agreement Type</label>
-                                                <Field name="AgreementType" type="text" className={'form-control' + (errors.AgreementType && touched.AgreementType ? ' is-invalid' : '')} />
-                                                <ErrorMessage name="AgreementType" component="div" className="invalid-feedback" />
+                                                <label htmlFor="AgreementName">Agreement </label>
+                                                <Field name="AgreementName" type="text" value={this.state.AgreementName.value} onChange={this.handleChange.bind(this,'AgreementName')} className={'form-control' + (errors.AgreementName && touched.AgreementName ? ' is-invalid' : '')} />
+                                                <ErrorMessage name="AgreementName" component="div" className="invalid-feedback" />
                                             </div>
 
                                         </div>
 
                                         <div className=" col-6 form-box mt-2">
                                             <div className="form-group">
-                                                <label htmlFor="AgreementApplicableTariff">Applicable Tariff</label>
-                                                <Field name="AgreementApplicableTariff" type="text" className={'form-control' + (errors.AgreementApplicableTariff && touched.AgreementApplicableTariff ? ' is-invalid' : '')} />
-                                                <ErrorMessage name="AgreementApplicableTariff" component="div" className="invalid-feedback" />
+                                                <label htmlFor="AgreementDescription">Description</label>
+                                                <Field name="AgreementDescription" type="text" value={this.state.AgreementDescription.value} onChange={this.handleChange.bind(this,'AgreementDescription')} className={'form-control' + (errors.AgreementDescription && touched.AgreementDescription ? ' is-invalid' : '')} />
+                                                <ErrorMessage name="AgreementDescription" component="div" className="invalid-feedback" />
                                             </div>
 
                                         </div>
 
                                         <div className=" col-6 form-box mt-2">
                                             <div className="form-group">
-                                                <label htmlFor="AgreementDocumentRef">Agreement Document Ref</label>
-                                                <Field name="AgreementDocumentRef" type="text" className={'form-control' + (errors.AgreementDocumentRef && touched.AgreementDocumentRef ? ' is-invalid' : '')} />
-                                                <ErrorMessage name="AgreementDocumentRef" component="div" className="invalid-feedback" />
+                                                <label htmlFor="AgreementAttachment">Attachment</label>
+                                                <Field name="AgreementAttachment" type="text"  value={this.state.AgreementAttachment.value} onChange={this.handleChange.bind(this,'AgreementAttachment')} className={'form-control' + (errors.AgreementAttachment && touched.AgreementAttachment ? ' is-invalid' : '')} />
+                                                <ErrorMessage name="AgreementAttachment" component="div" className="invalid-feedback" />
                                             </div>
 
+                                        </div>
+                                        <div className=" col-6 form-box mt-2">
+                                            <div className="form-group">
+                                                <label htmlFor="AgreementCountries">Countries</label>
+                                                <Select name="AgreementCountries" value={this.state.AgreementCountries} onChange={this.handleChange.bind(this,'AgreementCountries')} isMulti={true} options={this.state.countryCodeOptions} />
+                                                <ErrorMessage name="AgreementCountries" component="div" className="invalid-feedback" />
+                                            </div>
                                         </div>
                                         <div className=" col-6 form-box mt-2">
                                             <div className="form-group">
@@ -186,9 +211,10 @@ class TradeAgreements extends Component {
                     <table className="table table-hover">
                         <thead className="material-table-th">
                             <tr>
-                                <th scope="col">Agreement Type</th>
-                                <th scope="col">Applicable Tariff</th>
-                                <th scope="col">DocumentRef</th>
+                                <th scope="col">Agreement </th>
+                                <th scope="col">Description</th>
+                                <th scope="col">Attachment</th>
+                                <th scope="col">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
