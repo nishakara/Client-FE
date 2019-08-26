@@ -9,6 +9,9 @@ import HSCode from './HSCode';
 import Measure from './Measure';
 import RegulatoryApproval from './RegulatoryApproval';
 import TradeAgreements from './TradeAgreements';
+
+
+
 import { BrowserRouter as Router, Route, Link } from "react-router-dom";
 
 const routes = [
@@ -47,7 +50,7 @@ const routes = [
     path: "/TradeAgreements",
     sidebar: () => <div>Trade Agreements!</div>,
     main: () =>  <TradeAgreements/>
-  }
+  } 
 ];
 class App extends Component {
 
@@ -86,6 +89,7 @@ class App extends Component {
                                                                 <li className="pb-2">
                                                                         <a href="/TradeAgreements"> <span className="TradeAgreements"></span> Trade Agreements</a>
                                                                 </li>
+                                                              
                                                         </ul>
                                                 </nav>
                                             

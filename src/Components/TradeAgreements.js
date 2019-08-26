@@ -22,6 +22,7 @@ class TradeAgreements extends Component {
         this.afterOpenModal = this.afterOpenModal.bind(this);
         this.closeModal = this.closeModal.bind(this);
         this.handleChange = this.handleChange.bind(this);
+        this.onEditModeLoadDetail = this.onEditModeLoadDetail.bind(this);
     }
 
     loadDropdown = (endPointUrl) => {
@@ -37,6 +38,8 @@ class TradeAgreements extends Component {
                             <td>{data[k].Description}</td>
                             <td>{data[k].Attachment}</td>
                             <td>{data[k].Attachment}</td>
+                            <td> <button type="button" value={data[k].ID} className="btn btn-primary-bridge-close" onClick={this.onEditModeLoadDetail}>Edit</button></td>
+
                         </tr>);
                     }
                     this.setState({ supplierListOptions: arrOptions });
@@ -72,9 +75,30 @@ class TradeAgreements extends Component {
     }
 
     handleChange = (name, value) => {
-        this.setState({...this.state, [name]: value});
+        this.setState({ ...this.state, [name]: value });
     };
-
+onEditModeLoadDetail(event) {
+        var Id = event.target.value;
+        this.setState({ isEditMode: true });
+        let url = BFF_URL + END_POINT + '/' + Id;
+        fetch(url)
+            .then(res => res.json())
+            .then((data) => {
+                
+                if (data) {
+                        
+                        this.setState({
+                            AgreementID: data.ID,
+                            AgreementName: data.Agreement,
+                            AgreementDescription: data.Description,
+                            AgreementAttachment: data.Attachment,
+                            AgreementCountries: data.Countries
+                        });
+                        this.openModal();
+                }
+            })
+            .catch(console.log)
+    }
     onSumbmitClick(fields) {
         var AGREEMENT_ID = 'NEW_AGREEMENT';
         var METHOD = 'POST'
@@ -93,9 +117,9 @@ class TradeAgreements extends Component {
             method: METHOD,
             body: JSON.stringify({
                 ID: AGREEMENT_ID,
-                Agreement: this.state.AgreementName,
-                Description: this.state.AgreementDescription,
-                Attachment: this.state.AgreementAttachment,
+                Agreement: fields.AgreementName,
+                Description: fields.AgreementDescription,
+                Attachment: fields.AgreementAttachment,
                 Countries: arrCounties
             }),
             headers: {
@@ -130,34 +154,36 @@ class TradeAgreements extends Component {
                         isOpen={this.state.modalIsOpen}
                         onAfterOpen={this.afterOpenModal}
                         onRequestClose={this.closeModal}
+                        ariaHideApp={false}
 
                         contentLabel="Example Modal">
                         <Formik
-                           /*   initialValues={{
-                                AgreementID: 'NEW_AGREEMENT',
-                                AgreementName: '',
-                                AgreementDescription: '',
-                                AgreementAttachment: '',
-                                AgreementCountries: []
+                            enableReinitialize={true}
+                            initialValues={{
+                                AgreementID: this.state.ID,
+                                AgreementName: this.state.AgreementName,
+                                AgreementDescription: this.state.AgreementDescription,
+                                AgreementAttachment: this.state.AgreementAttachment,
+                                AgreementCountries: this.state.AgreementCountries
                             }}
-                          validationSchema={Yup.object().shape({
+                            validationSchema={Yup.object().shape({
                                 AgreementID: Yup.string()
                                     .required('Agreement ID is required'),
                                 AgreementName: Yup.string()
                                     .required('Agreement name is required.'),
                                 AgreementDescription: Yup.string()
-                                .required('Description  is required.')
-                            })}*/
+                                    .required('Description  is required.')
+                            })}
                             onSubmit={fields => {
                                 this.onSumbmitClick(fields);
                             }}
-                            render={({ errors, status, touched }) => (
-                                <Form  onSubmit={this.props.handleSubmit}>
+                            render={({ values, errors, status, touched, handleChange }) => (
+                                <Form>
                                     <div className="row pr-3 pl-3">
                                         <div className="col-6 form-box mt-2">
                                             <div className="form-group">
                                                 <label htmlFor="AgreementID">Agreement ID</label>
-                                                <Field name="AgreementID" type="text" value={this.state.AgreementID.value} onChange={this.handleChange.bind(this,'AgreementID')} className={'form-control' + (errors.AgreementID && touched.AgreementID ? ' is-invalid' : '')} />
+                                                <Field name="AgreementID" type="text" value={values.AgreementID} onChange={handleChange} className={'form-control' + (errors.AgreementID && touched.AgreementID ? ' is-invalid' : '')} />
                                                 <ErrorMessage name="AgreementID" component="div" className="invalid-feedback" />
                                             </div>
                                         </div>
@@ -165,7 +191,7 @@ class TradeAgreements extends Component {
                                         <div className=" col-6 form-box mt-2">
                                             <div className="form-group">
                                                 <label htmlFor="AgreementName">Agreement </label>
-                                                <Field name="AgreementName" type="text" value={this.state.AgreementName.value} onChange={this.handleChange.bind(this,'AgreementName')} className={'form-control' + (errors.AgreementName && touched.AgreementName ? ' is-invalid' : '')} />
+                                                <Field name="AgreementName" type="text" value={values.AgreementName} onChange={handleChange} className={'form-control' + (errors.AgreementName && touched.AgreementName ? ' is-invalid' : '')} />
                                                 <ErrorMessage name="AgreementName" component="div" className="invalid-feedback" />
                                             </div>
 
@@ -174,7 +200,7 @@ class TradeAgreements extends Component {
                                         <div className=" col-6 form-box mt-2">
                                             <div className="form-group">
                                                 <label htmlFor="AgreementDescription">Description</label>
-                                                <Field name="AgreementDescription" type="text" value={this.state.AgreementDescription.value} onChange={this.handleChange.bind(this,'AgreementDescription')} className={'form-control' + (errors.AgreementDescription && touched.AgreementDescription ? ' is-invalid' : '')} />
+                                                <Field name="AgreementDescription" type="text" value={values.AgreementDescription} onChange={handleChange} className={'form-control' + (errors.AgreementDescription && touched.AgreementDescription ? ' is-invalid' : '')} />
                                                 <ErrorMessage name="AgreementDescription" component="div" className="invalid-feedback" />
                                             </div>
 
@@ -183,18 +209,20 @@ class TradeAgreements extends Component {
                                         <div className=" col-6 form-box mt-2">
                                             <div className="form-group">
                                                 <label htmlFor="AgreementAttachment">Attachment</label>
-                                                <Field name="AgreementAttachment" type="text"  value={this.state.AgreementAttachment.value} onChange={this.handleChange.bind(this,'AgreementAttachment')} className={'form-control' + (errors.AgreementAttachment && touched.AgreementAttachment ? ' is-invalid' : '')} />
+                                                <Field name="AgreementAttachment" type="text" value={values.AgreementAttachment} onChange={handleChange} className={'form-control' + (errors.AgreementAttachment && touched.AgreementAttachment ? ' is-invalid' : '')} />
                                                 <ErrorMessage name="AgreementAttachment" component="div" className="invalid-feedback" />
                                             </div>
 
                                         </div>
                                         <div className=" col-6 form-box mt-2">
                                             <div className="form-group">
-                                                <label htmlFor="AgreementCountries">Countries</label>
-                                                <Select name="AgreementCountries" value={this.state.AgreementCountries} onChange={this.handleChange.bind(this,'AgreementCountries')} isMulti={true} options={this.state.countryCodeOptions} />
+                                                <label htmlFor="AgreementCountries">Country</label>
+                                                <Select name="AgreementCountries" value={values.AgreementCountries} onChange={handleChange} isMulti={true} options={this.state.countryCodeOptions} />
                                                 <ErrorMessage name="AgreementCountries" component="div" className="invalid-feedback" />
                                             </div>
                                         </div>
+
+    
                                         <div className=" col-6 form-box mt-2">
                                             <div className="form-group">
                                                 <button type="button" className="btn btn-primary-bridge-close" onClick={this.closeModal} >Cancel</button>

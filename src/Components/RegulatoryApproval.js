@@ -35,6 +35,7 @@ class RegulatoryApproval extends Component {
         this.closeModal = this.closeModal.bind(this);
         this.onLoadAttachement = this.onLoadAttachement.bind(this);
         this.onEditClick = this.onEditClick.bind(this);
+        this.onEditModeLoadDetail = this.onEditModeLoadDetail.bind(this);
         this.onChangehandler = this.onChangehandler.bind(this);
         this.onAddRow = this.onAddRow.bind(this);
         this.onResetRow = this.onResetRow.bind(this);
@@ -55,7 +56,7 @@ class RegulatoryApproval extends Component {
                         <td>{data[k].SampleRequired}</td>
                         <td>{data[k].AverageReleaseTime}</td>
                         <td>{data[k].ApprovalObtainingStage}</td>
-                        <td><button className="delete" onClick={() => this.editClick(k)} > Change </button></td>
+                        <td> <button type="button" value={data[k].ID} className="btn btn-primary-bridge-close" onClick={this.onEditModeLoadDetail}>Edit</button></td>
                     </tr>);
                 }
                 
@@ -87,16 +88,15 @@ class RegulatoryApproval extends Component {
         });
     }
 
-    editClick(id) {
+    onEditModeLoadDetail(event) {
+        var Id = event.target.value;
         this.setState({ isEditMode: true });
-        let url = BFF_URL + END_POINT + '/' + this.state.ApprovalList[id].ID;
+        let url = BFF_URL + END_POINT + '/' + Id;
         fetch(url)
             .then(res => res.json())
             .then((data) => {
-
-                if (data.length !== 0) {
-                    if (data) {
-
+                
+                if (data) {
                         var arrDocuments = [];
                         for (var k = 0; k < data.Attachments.length; k++) {
                             var attachment = data.Attachments[k];
@@ -116,7 +116,6 @@ class RegulatoryApproval extends Component {
 
 
                         this.openModal();
-                    }
                 }
             })
             .catch(console.log)
@@ -137,8 +136,15 @@ class RegulatoryApproval extends Component {
         })
     }
     onResetRow (event) {
-     
-  
+      /*  event.target.value.setFieldsValue({
+            AttachmentsDocument: '',
+            AttachmentsDescription: '',
+            AttachmentsMandatory: ''
+          });*/
+          this.setState({
+            ApprovalTestName: 'Chamath Jeevan111'
+        })
+
     }
     onAddRow (event) {
         const [AttachmentsDocument, AttachmentsDescription, AttachmentsMandatory] = event.target.value.split(',');
@@ -257,14 +263,15 @@ class RegulatoryApproval extends Component {
 
                         contentLabel="Regulatory Approval">
                         <Formik
+                        enableReinitialize={true}
                             initialValues={{
-                               ApprovalID: 'NEW_APPROVAL',
-                                ApprovalInstitute: '',
-                                ApprovalTestName: '',
-                                ApprovalReleaseTimeInDays: '',
-                                ApprovalSampleRequired: false,
-                                ApprovalAverageReleaseTime: '',
-                                ApprovalObtainingStage: ''
+                               ApprovalID: this.state.ApprovalID,
+                                ApprovalInstitute: this.state.ApprovalInstitute,
+                                ApprovalTestName: this.state.ApprovalTestName,
+                                ApprovalReleaseTimeInDays: this.state.ApprovalReleaseTimeInDays,
+                                ApprovalSampleRequired: this.state.ApprovalSampleRequired,
+                                ApprovalAverageReleaseTime: this.state.ApprovalSampleRequired,
+                                ApprovalObtainingStage: this.state.ApprovalObtainingStage
                             }}
                             
                             validationSchema={Yup.object().shape({
@@ -291,7 +298,7 @@ class RegulatoryApproval extends Component {
                             onSubmit={fields => {
                                 this.onSubmitClick(fields);
                             }}
-                            render={({ values, errors, status, touched, handleChange} ) => (
+                            render={({ values, errors, status, touched, handleChange,setFieldsValue} ) => (
                                 <Form>
                                     <div className=" col-12 form-box mt-4">   <h3 className="pb-3">Regulatory Approval</h3>  </div>
                                     <div className="row pr-3 pl-3">
@@ -393,7 +400,11 @@ class RegulatoryApproval extends Component {
                                                 <label htmlFor="attachmentActionButton">Action </label>
                                                 <br></br>
                                                 <button type="button" name="ContectActionButton" value={[values.AttachmentsDocument,values.AttachmentsDescription,values.AttachmentsMandatory]} onClick={this.onAddRow}>Save</button>
-                                                <button type="button" name="ContectActionButton" value={values} onClick={this.onResetRow}>Reset</button>
+                                                <button type="button" name="ContectActionButton" value={setFieldsValue} onClick={() => {
+                                                                                                                                 this.props.form.setFieldsValue({
+                                                                                                                                    AttachmentsDocument : 'Chamath Jeevan'
+                                                                                                                                  });
+                                                                                                                                }}>Reset</button>
                                             </div>
                                         </div>
 

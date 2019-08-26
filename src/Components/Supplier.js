@@ -2,14 +2,265 @@ import React, { Component } from 'react';
 import Modal from 'react-modal';
 import { Formik, Field, Form, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
+const { URL_BFF, ENDPOINTS, HTTP_METHODS } = require('./config');
 
-const BFF_URL = 'http://localhost:8081/';
-const END_POINT = 'supplier';
+
 
 class Supplier extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            supplierlID: 'NEW_SUPPLIER',
+            supplierName: '',
+            supplierNearestSeaPort: '',
+            supplierNearestAirport: '',
+            supplierSeaFreightTransitTime: '',
+            supplierAirFreightTransitTime: '',
+            supplierWebsite: '',
+            supplierLinkCatalouges: '',
+            supplierShippingInstruction: '',
+            ContectIndex: 0,
+            ContectID: '',
+            ContectPerson: '',
+            ContectTelehphone: '',
+            ContectMobile: '',
+            ContectEmail: '',
+            ContectsOpetation: 0,
+            SupplierList: [],
+            SupplierContacts: [],
+            ContectsOpetationRows: '',
+            fields: {}
+        };
+
+        this.openModal = this.openModal.bind(this);
+        this.afterOpenModal = this.afterOpenModal.bind(this);
+        this.closeModal = this.closeModal.bind(this);
+        this.onChangehandler = this.onChangehandler.bind(this);
+        this.onOpenSupplier = this.onOpenSupplier.bind(this);
+        this.onLoadSubTable = this.onLoadSubTable.bind(this);
+        this.onSubmitClick = this.onSubmitClick.bind(this);
+        this.onFormStateReset = this.onFormStateReset.bind(this);
+        this.onAddRow = this.onAddRow.bind(this);
+        this.onEditModeLoadDetail = this.onEditModeLoadDetail.bind(this);
+        this.onRowReset = this.onRowReset.bind(this);
+        this.onSubTableRowEdit = this.onSubTableRowEdit.bind(this);
+        this.onSubTableRemoveRow = this.onSubTableRemoveRow.bind(this);
+    }
+
+    loadDropdown = (dropDownType, endPointUrl) => {
+        fetch(endPointUrl)
+            .then(res => res.json())
+            .then((data) => {
+
+                var arrOptions = [];
+                for (var k = 0; k < data.length; k++) {
+                    switch (dropDownType) {
+                        case ENDPOINTS.SUPPLIER:
+                            arrOptions.push(<tr key={k}>
+                                <td>{data[k].Name}</td>
+                                <td>{data[k].NearestSeaPort}</td>
+                                <td>{data[k].NearestAirPort}</td>
+                                <td>{data[k].SeaFreightTransitTime}</td>
+                                <td>{data[k].AirFreightTransitTime}</td>
+                                <td> <button type="button" value={data[k].ID} className="btn btn-primary-bridge-close" onClick={this.onEditModeLoadDetail}>Edit</button></td>
+                            </tr>);
+                            break;
+                        case ENDPOINTS.INCOTERM:
+                            arrOptions.push(<option key={k} value={data[k].ID}> {data[k].Incoterms} </option>);
+                            break;
+                        case ENDPOINTS.PAYMENT_TERM:
+                            arrOptions.push(<option value={data[k].ID}> {data[k].PaymentTerm} </option>);
+                            break;
+                        case ENDPOINTS.BANK:
+                            arrOptions.push(<option value={data[k].ID}> {data[k].NAME} </option>);
+                            break;
+                        default:
+                        // code block
+                    }
+                }
+
+                switch (dropDownType) {
+                    case 'supplier':
+                        this.setState({ supplierListOptions: arrOptions });
+                        break;
+                    case ENDPOINTS.INCOTERM:
+                        this.setState({ supplierIncotermOptions: arrOptions });
+                        break;
+                    case ENDPOINTS.PAYMENT_TERM:
+                        this.setState({ supplierPaymentTermOptions: arrOptions });
+                        break;
+                    case ENDPOINTS.BANK:
+                        this.setState({ supplierBankOptions: arrOptions });
+                        break;
+                    default:
+
+                }
+            })
+            .catch(console.log)
+    }
+
+    onContactReset() {
+        this.setState({
+            ContectIndex: 0,
+            ContectID: '-',
+            ContectPerson: '',
+            ContectTelehphone: '',
+            ContectMobile: '',
+            ContectEmail: ''
+        })
+    }
+
+
+    onOpenSupplier(ID) {
+       alert(ID);
+    }
+
+    onChangehandler(event) {
+        console.log(event.target.name + ' : ' + event.target.value);
+        this.setState({
+            [event.target.name]: event.target.value
+        });
+    }
+    componentDidMount() {
+        this.loadDropdown(ENDPOINTS.SUPPLIER, URL_BFF + ENDPOINTS.SUPPLIER)
+        this.loadDropdown(ENDPOINTS.INCOTERM, URL_BFF + ENDPOINTS.INCOTERM)
+        this.loadDropdown(ENDPOINTS.PAYMENT_TERM, URL_BFF + ENDPOINTS.PAYMENT_TERM)
+        this.loadDropdown(ENDPOINTS.BANK, URL_BFF + ENDPOINTS.BANK)
+    }
+
+    openModal() {
+        this.setState({ modalIsOpen: true });
+    }
+
+    afterOpenModal() {
+        // references are now sync'd and can be accessed.
+        // this.subtitle.style.color = '#f00';
+    }
+
+    closeModal() {
+        this.setState({ modalIsOpen: false });
+    }
+
+    handleChange(evt) {
+        // check it out: we get the evt.target.name (which will be either "email" or "password")
+        // and use it to target the key on our `state` object with the same name, using bracket syntax
+        this.setState({ [evt.target.name]: evt.target.value });
+    }
+     // ------------- LOAD EDIT MODE RECORD DETAIL --------------------------
+
+     onEditModeLoadDetail(event) {
+        var Id = event.target.value;
+
+        this.setState({isSubTableEditMode : true});
+
+        let url = URL_BFF + ENDPOINTS.SUPPLIER + '/' + Id;
+        fetch(url)
+            .then(res => res.json())
+            .then((data) => {
+
+                if (data.length !== 0) {
+                    if (data) {
+
+                        var arrContacts = [];
+                        data.ContactPersons.forEach(eachContact);
+
+                        function eachContact(item, index) {
+                            arrContacts.push({ ID: item.ID, Name: item.Name, Telephone: item.Telephone, Mobile: item.Mobile, Email: item.Email })
+                        }
+                        this.setState({
+                            supplierlID: data.ID,
+                            supplierName: data.Name,
+                            supplierlAddress: data.Address,
+                            supplierNearestSeaPort: data.NearestSeaPort,
+                            supplierNearestAirport: data.NearestAirPort,
+                            supplierSeaFreightTransitTime: data.SeaTransitTime,
+                            supplierAirFreightTransitTime: data.AirTransitTime,
+                            supplierWebsite: data.SuppliersWebSite,
+                            supplierLinkCatalouges: data.LinkToCatalogues,
+                            supplierShippingInstruction: data.ShippingInstruction,
+                            supplierIncoterm: data.Incoterm_ID,
+                            supplierPaymentTerm: data.PaymentTerm_ID,
+                            supplierBank: data.BanksName,
+                            supplierTransportMode: data.TransportMode,
+                            SupplierContacts: arrContacts
+                        });
+                        this.onLoadSubTable()
+                        this.openModal();
+                    }
+                }
+            })
+            .catch(console.log)
+
+    }
+
+     // ------------- SUB TABLE OPERATION --------------------------
+
+     onAddRow(event) {
+        const [contectPerson, contectTelehphone, contectMobile, contectEmail] = event.target.value.split(',');
+
+        if (contectPerson.trim() === '') {
+            alert(' Contact person name is required.');
+
+        }
+
+        if (contectTelehphone.trim() === '' && contectMobile.trim() === '' && contectEmail.trim() === '') {
+            alert(' Contact midia is required.');
+        }
+
+        // if (cowsOpetationType === 0) {
+        this.state.SupplierContacts.push({ ID: 'New', Name: contectPerson, Telephone: contectTelehphone, Mobile: contectMobile, Email: contectEmail })
+
+        /*} else if (cowsOpetationType === 1) {
+             this.state.SupplierContacts[contectIndex] = { ID: 'New', Name: contectPerson, Telephone: contectTelehphone, Mobile: contectMobile, Email: contectEmail }
+      }*/
+      this.onRowReset()
+        this.onLoadSubTable()
+     
+    };
+
+    onSubTableRemoveRow(event) {
+        var index = event.target.value
+        this.state.SupplierContacts.splice(index, 1);
+        this.onLoadSubTable();
+    }
+    onLoadSubTable() {
+        var rows = this.state.SupplierContacts.map((Contect, i) => {
+            return (
+                <tr >
+                    <td>{Contect.Name}</td>
+                    <td>{Contect.Telephone}</td>
+                    <td>{Contect.Mobile}</td>
+                    <td>{Contect.Email}</td>
+                    <td>
+                        <button type="button" className="btn btn-primary-bridge-close" value={i} onClick={this.onSubTableRowEdit}>Edit</button>
+                        <button type="button" className="btn btn-primary-bridge-close" value={i} onClick={this.onSubTableRemoveRow}>Remove</button>
+                    </td>
+                </tr>
+            );
+        });
+
+        this.setState({ ContectTableRows: rows });
+    }
+
+    onSubTableRowEdit(event) {
+        var index = event.target.value
+     var Contect=  this.state.SupplierContacts[index];
+        this.setState({
+            RowsOpetationType: 1,
+            ContectsIndex: index,
+            ContectsID: Contect.ID,
+            ContectPerson: Contect.Name,
+            ContectTelehphone: Contect.Telephone,
+            ContectMobile: Contect.Mobile,
+            ContectEmail: Contect.Email,
+            ContectsOpetation: 1
+        });
+    }
+
+    // ------------- STATE AND OTHER RESETS ---------------------------
+
+    onFormStateReset() {
+        this.setState({
             supplierlID: 'NEW_SUPPLIER',
             supplierName: '',
             supplierlAddress: '',
@@ -31,152 +282,14 @@ class Supplier extends Component {
             SupplierList: [],
             SupplierContacts: [],
             ContectTableRows: '',
+            isSubTableEditMode: false,
+            modalIsOpen: true ,
             fields: {}
-        };
-
-        this.onSubmitClick = this.onSubmitClick.bind(this);
-        this.onLoadContact = this.onLoadContact.bind(this);
-        this.openModal = this.openModal.bind(this);
-        this.afterOpenModal = this.afterOpenModal.bind(this);
-        this.closeModal = this.closeModal.bind(this);
-        this.onChangehandler = this.onChangehandler.bind(this);
-        this.onOpenSupplier = this.onOpenSupplier.bind(this);
-        this.onAddRow = this.onAddRow.bind(this);
-        this.onEditSupplier = this.onEditSupplier.bind(this);
-        
-    }
-   
-
-    loadDropdown = (dropDownType, endPointUrl) => {
-        fetch(endPointUrl)
-            .then(res => res.json())
-            .then((data) => {
-
-                var arrOptions = [];
-                for (var k = 0; k < data.length; k++) {
-                    switch (dropDownType) {
-                        case 'supplier':
-                            arrOptions.push(<tr key={k}>
-                                <td>{data[k].Name}</td>
-                                <td>{data[k].NearestSeaPort}</td>
-                                <td>{data[k].NearestAirPort}</td>
-                                <td>{data[k].SeaFreightTransitTime}</td>
-                                <td>{data[k].AirFreightTransitTime}</td>
-                                <td> <button type="button" value={data[k].ID} className="btn btn-primary-bridge-close"   onClick={this.onEditSupplier}>Edit</button></td>
-                            </tr>);
-                            break;
-                        case 'incoterm':
-                            arrOptions.push(<option value={data[k].ID}> {data[k].Incoterms} </option>);
-                            break;
-                        case 'paymentterm':
-                            arrOptions.push(<option value={data[k].ID}> {data[k].PaymentTerm} </option>);
-                            break;
-                        case 'bank':
-                            arrOptions.push(<option value={data[k].ID}> {data[k].NAME} </option>);
-                            break;
-                        default:
-                        // code block
-                    }
-                }
-
-                switch (dropDownType) {
-                    case 'supplier':
-                        this.setState({ supplierListOptions: arrOptions });
-                        break;
-                    case 'incoterm':
-                        this.setState({ supplierIncotermOptions: arrOptions });
-                        break;
-                    case 'paymentterm':
-                        this.setState({ supplierPaymentTermOptions: arrOptions });
-                        break;
-                    case 'bank':
-                        this.setState({ supplierBankOptions: arrOptions });
-                        break;
-                    default:
-
-                }
-            })
-            .catch(console.log)
+        });
+        this.onRowReset();
     }
 
-    onEditSupplier(event) {
-        var Id = event.target.value;
-        this.setState({ isEditMode: true });
-
-        let url = BFF_URL + END_POINT + '/' + Id;
-        fetch(url)
-            .then(res => res.json())
-            .then((data) => {
-
-                if (data.length !== 0) {
-                    if (data) {
-
-                        var arrContacts = [];
-                        data.ContactPersons.forEach(eachContact);
-
-                        function eachContact(item, index) {
-                            arrContacts.push({ ID: item.ID, Name: item.Name , Telephone: item.Telephone, Mobile: item.Mobile, Email: item.Email })
-                        }
-                        this.setState({
-                            supplierlID: data.ID,             
-                            supplierName: data.Name,
-                            supplierlAddress: data.Address,
-                            supplierNearestSeaPort: data.NearestSeaPort,
-                            supplierNearestAirport: data.NearestAirPort,
-                            supplierSeaFreightTransitTime: data.SeaTransitTime,
-                            supplierAirFreightTransitTime: data.AirTransitTime,
-                            supplierWebsite: data.SuppliersWebSite,
-                            supplierLinkCatalouges: data.LinkToCatalogues,
-                            supplierShippingInstruction: data.ShippingInstruction,
-                            supplierIncoterm: data.Incoterm_ID,
-                            supplierPaymentTerm: data.PaymentTerm_ID,
-                            supplierBank: data.BanksName,
-                            supplierTransportMode: data.TransportMode,
-                            SupplierContacts : arrContacts
-                        });
-                        this.openModal();
-                    }
-                }
-            })
-            .catch(console.log)
-    }
-
-     onAddRow (event) {
-        const [contectPerson, contectTelehphone, contectMobile, contectEmail] = event.target.value.split(',');
-
-        if (contectPerson.trim() === '') {
-            alert(' Contact person name is required.');
-        }
-
-        if (contectTelehphone.trim() === '' && contectMobile.trim() === '' && contectEmail.trim() === '') {
-            alert(' Contact midia is required.');
-        }
-
-       // if (cowsOpetationType === 0) {
-            this.state.SupplierContacts.push({ ID: 'New', Name: contectPerson , Telephone: contectTelehphone, Mobile: contectMobile, Email: contectEmail })
-
-       /*} else if (cowsOpetationType === 1) {
-            this.state.SupplierContacts[contectIndex] = { ID: 'New', Name: contectPerson, Telephone: contectTelehphone, Mobile: contectMobile, Email: contectEmail }
-     }*/
-
-      var rows =   this.state.SupplierContacts.map((Contect, i) => {
-            return (
-                <tr >
-                    <td>{Contect.ID}</td>
-                    <td>{Contect.Name}</td>
-                    <td>{Contect.Telephone}</td>
-                    <td>{Contect.Mobile}</td>
-                    <td>{Contect.Email}</td>
-                    <td>
-                        <button type="button" className="btn btn-primary-bridge-close" value={i} onClick={() => this.onRemoveRow()}>Remove</button>
-                    </td>
-                </tr>
-            );
-        })
-        this.setState({ ContectTableRows: rows });
-      };
-   
-    onContactReset() {
+    onRowReset() {
         this.setState({
             ContectIndex: 0,
             ContectID: '-',
@@ -184,90 +297,15 @@ class Supplier extends Component {
             ContectTelehphone: '',
             ContectMobile: '',
             ContectEmail: ''
-        })
-    }
-    
-    onRemoveRow(event) {
-       var index =  event.target.value
-      //  alert(index);
-        this.state.SupplierContacts.splice(index, 1);
-        this.onLoadContact();
-    }
-
-
-    onLoadContact() {
-        var rows = this.state.SupplierContacts.map((Contect, i) => {
-            return (
-                <tr >
-                    <td>{Contect.ID}</td>
-                    <td>{Contect.Name}</td>
-                    <td>{Contect.Telephone}</td>
-                    <td>{Contect.Mobile}</td>
-                    <td>{Contect.Email}</td>
-                    <td>
-                        <button type="button" className="btn btn-primary-bridge-close" onClick={() => this.onEditClick(Contect, i)}>Edit</button>
-                        <button type="button" className="btn btn-primary-bridge-close" onClick={() => this.onRemoveRow()}>Remove</button>
-                    </td>
-                </tr>
-            );
-        });
-
-        this.setState({ ContectTableRows: rows });
-    }
-
-    onOpenSupplier(ID) {
-        alert(ID);
-    }
-    onEditClick(Contect, index) {
-        this.state.RowsOpetationType = 1;
-        this.setState({
-            ContectsIndex: index,
-            ContectsID: Contect.ID,
-            ContectPerson: Contect.Name,
-            ContectTelehphone: Contect.Telephone,
-            ContectMobile: Contect.Mobile,
-            ContectEmail: Contect.Email,
-            ContectsOpetation: 1
         });
     }
-    onChangehandler(event) {
-        console.log(event.target.name + ' : ' + event.target.value);
-        this.setState({
-            [event.target.name]: event.target.value
-        });
-    }
-    componentDidMount() {
-        this.loadDropdown(END_POINT, BFF_URL + END_POINT)
-        this.loadDropdown('incoterm', BFF_URL + 'incoterm')
-        this.loadDropdown('paymentterm', BFF_URL + 'paymentterm')
-        this.loadDropdown('bank', BFF_URL + 'bank')
-    }
-
-    openModal() {
-        this.setState({ modalIsOpen: true });
-    }
-
-    afterOpenModal() {
-        // references are now sync'd and can be accessed.
-        // this.subtitle.style.color = '#f00';
-    }
-
-    closeModal() {
-        this.setState({ modalIsOpen: false });
-    }
-
-    handleChange(evt) {
-        // check it out: we get the evt.target.name (which will be either "email" or "password")
-        // and use it to target the key on our `state` object with the same name, using bracket syntax
-        this.setState({ [evt.target.name]: evt.target.value });
-    }
-
-    onSubmitClick(fields) {
+     // ------------- SAVE OPRATIONS  HTTP POST/PUT ---------------------------
+     onSubmitClick(fields) {
         alert(fields);
         const Supplier_ID = this.state.supplierlID;
-        const METHOD = 'POST'
+        var METHOD = HTTP_METHODS.POST
         if (Supplier_ID !== 'NEW_SUPPLIER') {
-            METHOD = 'PUT';
+            METHOD = HTTP_METHODS.PUT;
         }
         var arrContacts = [];
         for (var k = 0; k < this.state.SupplierContacts.length; k++) {
@@ -275,7 +313,7 @@ class Supplier extends Component {
             arrContacts.push({ Name: contact.name, Telephone: contact.Telephone, Mobile: contact.Mobile, Email: contact.Email });
         }
 
-        fetch(BFF_URL + END_POINT, {
+        fetch(URL_BFF + ENDPOINTS.SUPPLIER, {
             method: METHOD,
             body: JSON.stringify({
                 ID: Supplier_ID,
@@ -312,9 +350,6 @@ class Supplier extends Component {
     }
 
     render() {
-     
-        
-
         return (
             <div className="row pl-5 pt-3">
                 <div className="col-11 form-box mt-2 mb-4">
@@ -331,71 +366,67 @@ class Supplier extends Component {
 
                         contentLabel="Example Modal">
                         <Formik
-                            initialValues={{
+                          enableReinitialize={true}
+                          initialValues={{
+                            supplierlID: this.state.supplierlID,
+                            supplierName: this.state.supplierName,
+                            supplierlAddress: this.state.supplierlAddress,
+                            supplierNearestSeaPort: this.state.supplierNearestSeaPort,
+                            supplierNearestAirport: this.state.supplierNearestAirport,
+                            supplierSeaFreightTransitTime: this.state.supplierSeaFreightTransitTime,
+                            supplierAirFreightTransitTime: this.state.supplierAirFreightTransitTime,
+                            supplierWebsite: this.state.supplierWebsite,
+                            supplierLinkCatalouges: this.state.supplierLinkCatalouges,
+                            supplierShippingInstruction: this.state.supplierShippingInstruction,
+                            supplierPaymentTerm: this.state.supplierPaymentTerm,
+                            supplierBank: this.state.supplierBank,
+                            supplierTransportMode: this.state.supplierTransportMode,
+                            ContectPerson: this.state.ContectPerson,
+                            ContectTelehphone: this.state.ContectTelehphone,
+                            ContectMobile: this.state.ContectMobile,
+                            ContectEmail: this.state.ContectEmail
+                        }}
+                        validationSchema={Yup.object().shape({
+                            supplierlID: Yup.string()
+                                .required('Supplier ID is required'),
+                            supplierName: Yup.string()
+                                .required('Name is required.'),
+                            supplierlAddress: Yup.string()
+                                .required('Supplier address is required.'),
+                            supplierNearestSeaPort: Yup.string()
+                                .required('Nearest sea port is required.'),
+                            supplierNearestAirport: Yup.string()
+                                .required('Nearest air port is required.'),
+                            supplierSeaFreightTransitTime: Yup.number()
+                                .required()
+                                .positive()
+                                .integer()
+                                .required('Positive integer value is required for sea transit time'),
+                            supplierAirFreightTransitTime: Yup.number()
+                                .required()
+                                .positive()
+                                .integer()
+                                .required('Positive integer value is required for air transit time'),
+                            supplierWebsite: Yup.string().nullable()
+                                .url('Web site url required.'),
+                            supplierLinkCatalouges: Yup.string()
+                                .required('Please select the supplier'),
+                            supplierShippingInstruction: Yup.string().nullable(),
+                            supplierPaymentTerm: Yup.string().nullable(),
+                            supplierBank: Yup.string().nullable(),
+                            supplierTransportMode: Yup.string().nullable(),
+                            ContectPerson: Yup.string().nullable(),
+                            ContectTelehphone: Yup.string().nullable(),
+                            ContectMobile: Yup.string().nullable(),
+                            ContectEmail: Yup.string().nullable(),
+                        })}
 
-                                supplierlID: 'NEW_SUPPLIER',
-                                supplierName: '',
-                                supplierlAddress: this.state.Address,
-                                supplierNearestSeaPort: '',
-                                supplierNearestAirport: '',
-                                supplierSeaFreightTransitTime: 0,
-                                supplierAirFreightTransitTime: 0,
-                                supplierWebsite: '',
-                                supplierLinkCatalouges: '',
-                                supplierShippingInstruction: '',
-                                supplierPaymentTerm: '',
-                                supplierBank: '',
-                                supplierTransportMode: '',
-                                ContectPerson: '',
-                                ContectTelehphone: '',
-                                ContectMobile: '',
-                                ContectEmail: ''
-                            }}
-                            validationSchema={Yup.object().shape({
-                                supplierlID: Yup.string()
-                                    .required('Supplier ID is required'),
-                                supplierName: Yup.string()
-                                    .required('Name is required.'),
-                                supplierlAddress: Yup.string()
-                                    .required('Supplier address is required.'),
-                                supplierNearestSeaPort: Yup.string()
-                                    .required('Nearest sea port is required.'),
-                                supplierNearestAirport: Yup.string()
-                                    .required('Nearest air port is required.'),
-                                supplierSeaFreightTransitTime: Yup.number()
-                                    .required()
-                                    .positive()
-                                    .integer()
-                                    .required('Positive integer value is required for sea transit time'),
-                                supplierAirFreightTransitTime: Yup.number()
-                                    .required()
-                                    .positive()
-                                    .integer()
-                                    .required('Positive integer value is required for air transit time'),
-                                supplierWebsite: Yup.string().nullable()
-                                    .url('Web site url required.'),
-                                supplierLinkCatalouges: Yup.string()
-                                    .required('Please select the supplier'),
-                                supplierShippingInstruction: Yup.string().nullable(),
-                                supplierPaymentTerm: Yup.string().nullable(),
-                                supplierBank: Yup.string().nullable(),
-                                supplierTransportMode: Yup.string().nullable(),
-                                ContectPerson: Yup.string().nullable(),
-                                ContectTelehphone: Yup.string().nullable(),
-                                ContectMobile: Yup.string().nullable(),
-                                ContectEmail: Yup.string().nullable(),
-                            })}
-
+                            
                             onSubmit={fields => {
-
                                 this.onSubmitClick(fields);
                             }}
-
                             render={({ values, errors, status, touched, handleChange }) => (
-                                
                                 <Form>
-                                     {console.log(`EEEEror --> ${JSON.stringify(errors)}`)}
-                                    {console.log(`dsdsdsdsd${JSON.stringify(values)}`)}
                                     <div className="row pr-3 pl-3">
                                         <div className="col-6 form-box mt-2">
                                             <div className="form-group">
@@ -513,7 +544,7 @@ class Supplier extends Component {
                                             <div className="form-group">
                                                 <label htmlFor="supplierTransportMode">Default Transport Mode</label>
                                                 <Field name="supplierTransportMode" component="select" value={values.supplierTransportMode} onChange={handleChange} className={'form-control' + (errors.supplierTransportMode && touched.supplierTransportMode ? ' is-invalid' : '')} >
-                                                    <option value=""></option>
+                                                    <option value="-"></option>
                                                     <option value="FCL">FCL</option>
                                                     <option value="LCL">LCL</option>
                                                     <option value="AIR"> AIR</option>
@@ -555,10 +586,10 @@ class Supplier extends Component {
                                         <div className=" col-3 form-box mt-1">
                                             <div className="form-group">
                                                 <label>Action</label> <br></br>
-                                                <button type="button" name="ContectActionButton" value={[values.ContectPerson,values.ContectTelehphone,values.ContectMobile,values.ContectEmail]} onClick={this.onAddRow}>Save</button>
-                                                <button type="button" name="ContectActionButton" onClick={this.onContactReset.bind()}>Reset</button>
-                                          
-                                               </div>
+                                                <button type="button" name="ContectActionButton" value={[values.ContectPerson, values.ContectTelehphone, values.ContectMobile, values.ContectEmail]} onClick={this.onAddRow}>Save</button>
+                                                <button type="button" name="ContectActionButton" onClick={this.onRowReset}>Reset</button>
+
+                                            </div>
                                         </div>
                                         <div className=" col-12 form-box mt-4">
                                             <table className="table table-hover">
