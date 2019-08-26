@@ -9,6 +9,7 @@ import HSCode from './HSCode';
 import Measure from './Measure';
 import RegulatoryApproval from './RegulatoryApproval';
 import TradeAgreements from './TradeAgreements';
+import Incoterm from './Incoterm';
 
 
 
@@ -50,6 +51,11 @@ const routes = [
     path: "/TradeAgreements",
     sidebar: () => <div>Trade Agreements!</div>,
     main: () =>  <TradeAgreements/>
+  } ,
+  {
+    path: "/Incoterm",
+    sidebar: () => <div>Incoterm!</div>,
+    main: () =>  <Incoterm/>
   } 
 ];
 class App extends Component {
@@ -88,6 +94,9 @@ class App extends Component {
                                                                 </li>
                                                                 <li className="pb-2">
                                                                         <a href="/TradeAgreements"> <span className="TradeAgreements"></span> Trade Agreements</a>
+                                                                </li>
+                                                                <li className="pb-2">
+                                                                        <a href="/Incoterm"> <span className="Incoterm"></span> Incoterm</a>
                                                                 </li>
                                                               
                                                         </ul>
