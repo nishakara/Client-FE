@@ -11,14 +11,18 @@ const HTTP_METHODS = {
   
  const URL_BFF = "http://localhost:8081/"
 
-  const HSCODE = 'HSCODE'
+  const HSCODE = 'hscode'
   const REGAPPROVAL = 'regapproval'
   const SUPPLIER = 'supplier'
   const INCOTERM = 'incoterm'
   const BANK = 'bank'
   const PAYMENT_TERM = 'paymentterm'
   const TRADE_AGREEMENT = 'tradeagreement'
-  
+  const MATERIAL = 'material'
+  const MESURE = 'mesure'
+  const MATERIAL_TYPE = 'materialtype'
+  const COUNTRIES = 'countries'
+
   const ENDPOINTS = {
     HSCODE,
     REGAPPROVAL,
@@ -26,7 +30,11 @@ const HTTP_METHODS = {
     INCOTERM,
     BANK,
     PAYMENT_TERM,
-    TRADE_AGREEMENT
+    TRADE_AGREEMENT,
+    MATERIAL,
+    MESURE,
+    MATERIAL_TYPE,
+    COUNTRIES
   };
   
   module.exports = {
