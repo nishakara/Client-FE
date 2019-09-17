@@ -58,6 +58,7 @@ class Supplier extends Component {
                         case ENDPOINTS.SUPPLIER:
                             arrOptions.push(<tr key={k}>
                                 <td>{data[k].Name}</td>
+                                <td>{data[k].Address}</td>
                                 <td>{data[k].NearestSeaPort}</td>
                                 <td>{data[k].NearestAirPort}</td>
                                 <td>{data[k].SeaFreightTransitTime}</td>
@@ -66,7 +67,7 @@ class Supplier extends Component {
                             </tr>);
                             break;
                         case ENDPOINTS.INCOTERM:
-                            arrOptions.push(<option key={k} value={data[k].ID}> {data[k].Incoterms} </option>);
+                            arrOptions.push(<option key={k} value={data[k].ID}> {data[k].Incoterm} </option>);
                             break;
                         case ENDPOINTS.PAYMENT_TERM:
                             arrOptions.push(<option value={data[k].ID}> {data[k].PaymentTerm} </option>);
@@ -354,7 +355,7 @@ class Supplier extends Component {
             <div className="row pl-5 pt-3">
                 <div className="col-11 form-box mt-2 mb-4">
                     <div className="float-right">
-                        <button type="button" onClick={this.openModal} className="btn btn-line-primary-bridge " data-toggle="modal" data-target=".bd-example-modal-lg" >Add</button>
+                        <button type="button" onClick={this.openModal} className="btn btn-line-primary-bridge " data-toggle="modal" data-target=".bd-example-modal-lg" >Add Supplier</button>
                     </div>
                 </div>
                 <div>
@@ -625,10 +626,12 @@ class Supplier extends Component {
                         <thead className="supplier-table-th">
                             <tr>
                                 <th scope="col">Name</th>
+                                <th scope="col">Address</th>
                                 <th scope="col">Sea Port</th>
                                 <th scope="col">Air Port</th>
                                 <th scope="col">Sea Transit Time</th>
                                 <th scope="col">Air Transit Time</th>
+                                <th scope="col">Action</th>
                             </tr>
                         </thead>
                         <tbody>
