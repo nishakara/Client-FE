@@ -35,6 +35,11 @@ class Sidebar extends Component {
                                                                 <li className="pb-2">
                                                                         <a href="TradeAgreements"> <span className="TradeAgreements"></span> Trade Agreements</a>
                                                                 </li>
+
+                                                                <li className="pb-2">
+                                                                        <a href="PaymentTerm"> <span className="PaymentTerm"></span> Payment Terms</a>
+                                                                </li>
+                                                                
                                                         </ul>
                                                 </nav>
                                             

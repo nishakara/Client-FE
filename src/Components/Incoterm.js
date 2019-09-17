@@ -8,6 +8,7 @@ class Incoterm extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            
             incotermIncotermID: 'Incoterm-ID',
             incotermIncorterm: '',
             incotermDescription: '',
@@ -16,6 +17,7 @@ class Incoterm extends Component {
             incotermStatus: '',
             isEditMode: false,
             fields: {}
+            
         };
         this.onSubmitClick = this.onSubmitClick.bind(this);
         this.openModal = this.openModal.bind(this);
@@ -23,7 +25,7 @@ class Incoterm extends Component {
         this.closeModal = this.closeModal.bind(this);
         this.onEditModeLoadDetail = this.onEditModeLoadDetail.bind(this);
     }
-
+    
     loadDropdown = (endPointUrl) => {
         fetch(endPointUrl)
             .then(res => res.json())
@@ -71,8 +73,11 @@ class Incoterm extends Component {
             incotermFreight: '',
             incotermInsurance: '',
             incotermStatus: '',
+
+            
         });
     }
+    
 
     onEditModeLoadDetail(event) {
         var Id = event.target.value;
@@ -212,7 +217,6 @@ class Incoterm extends Component {
                                                 <Field name="incotermIncorterm" type="text" value={values.incotermIncorterm} onChange={handleChange} className={'form-control' + (errors.incotermIncorterm && touched.incotermIncorterm ? ' is-invalid' : '')} />
                                                 <ErrorMessage name="incotermIncorterm" component="div" className="invalid-feedback" />
                                             </div>
-
                                         </div>
 
                                         <div className=" col-6 form-box mt-2">
