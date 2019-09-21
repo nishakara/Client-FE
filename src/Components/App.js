@@ -9,6 +9,19 @@ import HSCode from './HSCode';
 import Measure from './Measure';
 import RegulatoryApproval from './RegulatoryApproval';
 import TradeAgreements from './TradeAgreements';
+import Incoterm from './Incoterm';
+import BlTypes from './Bltypes';
+import Stakeholders from './Stakeholder';
+import PaymentTerms from './PaymentTerm';
+import Client from './Client';
+import LogisticsRates from './LogisticsRates';
+import DemurragesCat from './DemurrageCat';
+import CustomsExRate from './CustomsExRate';
+import VoyageArrival from './VoyageArrival';
+
+
+
+
 import { BrowserRouter as Router, Route, Link } from "react-router-dom";
 
 const routes = [
@@ -47,7 +60,59 @@ const routes = [
     path: "/TradeAgreements",
     sidebar: () => <div>Trade Agreements!</div>,
     main: () =>  <TradeAgreements/>
+  } ,
+  {
+    path: "/Incoterm",
+    sidebar: () => <div>Incoterm!</div>,
+    main: () =>  <Incoterm/>
+  },
+  {
+    path : "/BlTypes",
+    sidebar :() => <div>BlTypes</div>,
+    main :() => <BlTypes/>
+  },
+  {
+    path : "/Stakeholder",
+    sidebar :() => <div>Stakeholder</div>,
+    main :() => <Stakeholders/>
+  },
+  {
+    path : "/PaymentTerm",
+    sidebar :() => <div>Payment Terms</div>,
+    main :() => <PaymentTerms/>
+  },
+  
+  {
+    path : "/Client",
+    sidebar :() => <div>Client</div>,
+    main :() => <Client/>
+  } ,
+  {
+    path : "/LogisticsRates",
+    sidebar :() => <div>LogisticsRates</div>,
+    main :() => <LogisticsRates/>
+  } ,
+
+  {
+    path :"/DemurragesCat",
+    sidebar:() => <div>DemurragesCat</div>,
+    main :() => <DemurragesCat/>
+  },
+
+  {
+    path : "/CustomsExRate",
+    sidebar : () => <div>CustomsExRate</div>,
+    main :() => <CustomsExRate/>
+  },
+
+  {
+    path : "/VoyageArrival",
+    sidebar :() => <div>VoyageArrival</div>,
+    main :() => <VoyageArrival/>
   }
+
+
+
 ];
 class App extends Component {
 
@@ -86,6 +151,40 @@ class App extends Component {
                                                                 <li className="pb-2">
                                                                         <a href="/TradeAgreements"> <span className="TradeAgreements"></span> Trade Agreements</a>
                                                                 </li>
+                                                                <li className="pb-2">
+                                                                        <a href="/Incoterm"> <span className="Incoterm"></span> Incoterm</a>
+                                                                </li>
+                                                                <li className = "pb-2">
+                                                                        <a href = "/BlTypes"><span className = "BlTypes"></span>BlTypes</a>
+                                                                </li>
+
+                                                                <li className = "pb-2">
+                                                                        <a href = "/Stakeholder"><span className = "Stakeholder"></span>Stakeholder</a>
+                                                                </li>
+                                                                <li className = "pb-2">
+                                                                        <a href = "/PaymentTerm"><span className = "PaymentTerm"></span>Payment Terms</a>
+                                                                </li>
+
+                                                                <li className = "pb-2">
+                                                                        <a href = "/Client"><span className = "Client"></span>Client</a>
+                                                                </li>
+
+                                                                <li className = "pb-2">
+                                                                        <a href = "/LogisticsRates"><span className = "LogisticsRates"></span>Logistics Rates</a>
+                                                                </li>
+
+                                                                <li className = "pb-2">
+                                                                        <a href = "/DemurragesCat"><span className = "DemurragesCat"></span>Demurrages Category</a>
+                                                                </li>
+
+                                                                <li className = "pb-2">
+                                                                        <a href = "/CustomsExRate"><span className = "CustomsExRate"></span>Customs Exchange Rate</a>
+                                                                </li>
+
+                                                                <li className = "pb-2">
+                                                                        <a href = "/VoyageArrival"><span className = "VoyageArrival"></span>Voyage Arrival</a>
+                                                                </li>
+                                                              
                                                         </ul>
                                                 </nav>
                                             
