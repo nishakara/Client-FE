@@ -232,7 +232,7 @@ render() {
                             .required("Status is required"),
                         })}
                         onSubmit = {fields => {
-                                this.onMaterialClick(fields);
+                                this.onSubmitClick(fields);
                         }}
                         render = {({ values, errors, status, touched, handleChange }) => (
                             <Form>
