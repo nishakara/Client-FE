@@ -6,11 +6,11 @@ const { URL_BFF, ENDPOINTS } = require('./config');
 
 //var urlMaterialService = 'http://localhost:3010/1001/'
 
-class BlTypes extends Component {
+class Bltypes extends Component {
     constructor(props) {
         super(props);
         this.state = {
-
+            modalIsOpen: false,
             blID:'',
             blBlType:'',
             blStrategy:'',
@@ -27,6 +27,9 @@ class BlTypes extends Component {
         this.afterOpenModal = this.afterOpenModal.bind(this);
         this.closeModal = this.closeModal.bind(this);
         this.onEditModeLoadDetail = this.onEditModeLoadDetail.bind(this);
+        this.loadAppruals = this.loadAppruals.bind(this);
+        this.handleChangeSelect = this.handleChangeSelect.bind(this);
+        this.addApprual = this.addApprual.bind(this);
 
     }
 
@@ -55,7 +58,7 @@ class BlTypes extends Component {
 
     componentDidMount() {
        // this.loadDropdown(urlMaterialService + 'bl')
-       this.loadDropdown(URL_BFF + ENDPOINTS.BL)
+       this.loadDropdown(URL_BFF + ENDPOINTS.BLTYPE)
 
     }
 
@@ -83,7 +86,7 @@ class BlTypes extends Component {
 
         var Id = event.target.value;
         this.setState({isEditmode : true});
-        let url = URL_BFF + ENDPOINTS.BL + '/' + Id;
+        let url = URL_BFF + ENDPOINTS.BLTYPE + '/' + Id;
         fetch(url)
             .then(res => res.json())
             .then((data) => {
@@ -139,7 +142,7 @@ class BlTypes extends Component {
             ID = fields.blID;
         }
 
-        fetch(URL_BFF + ENDPOINTS.BL, {
+        fetch(URL_BFF + ENDPOINTS.BLTYPE, {
             method: METHOD,
             body:JSON.stringify({
                 ID: ID,
@@ -319,4 +322,4 @@ render() {
     }
 }
 
-export default BlTypes;
+export default Bltypes;

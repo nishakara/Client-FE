@@ -11,7 +11,7 @@ import RegulatoryApproval from './RegulatoryApproval';
 import TradeAgreements from './TradeAgreements';
 import Incoterm from './Incoterm';
 import BlTypes from './Bltypes';
-import Stakeholders from './Stakeholder';
+import Stakeholder from './Stakeholder';
 import PaymentTerms from './PaymentTerm';
 import Client from './Client';
 import LogisticsRates from './LogisticsRates';
@@ -68,17 +68,17 @@ const routes = [
   },
   {
     path : "/BlTypes",
-    sidebar :() => <div>BlTypes</div>,
+    sidebar :() => <div>BlTypes!</div>,
     main :() => <BlTypes/>
   },
   {
     path : "/Stakeholder",
-    sidebar :() => <div>Stakeholder</div>,
-    main :() => <Stakeholders/>
+    sidebar :() => <div>Stakeholder!</div>,
+    main :() => <Stakeholder/>
   },
   {
     path : "/PaymentTerm",
-    sidebar :() => <div>Payment Terms</div>,
+    sidebar :() => <div>Payment Terms!</div>,
     main :() => <PaymentTerms/>
   },
   

@@ -32,7 +32,7 @@ class Stakeholder extends Component {
         };
         //this.onMaterialClick = this.onMaterialClick.bind(this);
         this.onSubmitClick = this.onSubmitClick.bind(this);
-        this.handleChange = this.handleChange.bind(this);
+       // this.handleChange = this.handleChange.bind(this);
         this.openModal = this.openModal.bind(this);
         this.afterOpenModal = this.afterOpenModal.bind(this);
         this.closeModal = this.closeModal.bind(this);
@@ -46,7 +46,8 @@ class Stakeholder extends Component {
             .then((data)=> {
 
                 var arrOptions = [];
-                for(var k = 0; k < data.length; k++) {   arrOptions.push(<tr key={k}>
+                for(var k = 0; k < data.length; k++) {   
+                    arrOptions.push(<tr key={k}>
                     <td>{data[k].ID}</td>
                     <td>{data[k].StakeholderName}</td>
                     <td>{data[k].StakeholderType}</td>
@@ -62,20 +63,20 @@ class Stakeholder extends Component {
                     <td>{data[k].Email}</td>
                     <td>{data[k].Contact}</td>
                     <td>{data[k].CompanyName}</td>
-                    <td><button type = "button" value = {data[k].ID} className = "btn btn-primary-bridge-close" onClick = { this.onEditModeLoadDetail}>Edit stakeholder</button></td>
+                    <td> <button type = "button" value = {data[k].ID} className = "btn btn-primary-bridge-close" onClick = { this.onEditModeLoadDetail}>Edit stakeholder</button></td>
 
                     </tr>);
                  
-                        break;
+                       // break;
                 }
-                this.setState({shCodeListOptions: arrOptions});
+                this.setState({shListOptions: arrOptions});
 
             })
             .catch(console.log)
 
     }       
     componentDidMount() {
-       // this.loadDropdown(urlMaterialService+ 'sh')
+
        this.loadDropdown(URL_BFF + ENDPOINTS.STAKEHOLDER)
     }
     openModal() {
@@ -86,7 +87,7 @@ class Stakeholder extends Component {
 
     }
     closeModal() {
-        this.setState({modalIsopen : false});
+        this.setState({modalIsOpen : false});
         this.setState ({
             shID:'',
             shStakeholderName:'',
@@ -145,9 +146,10 @@ class Stakeholder extends Component {
             .catch(console.log)
     }
 
-    handleChange(evt) {
+    /*handleChange(evt) {
         this.setState({[evt.target.name]:evt.target.value});
     }
+    */
 
 /*    onMaterialClick(fields) {
         console.error(fields);
@@ -203,20 +205,20 @@ onSubmitClick(fields) {
         method : METHOD,
         body : JSON.stringify ({
             ID : ID,
-            shStakeholderName:'',
-            shStakeholderType:'',
-            Address:'',
-            ClientName:'',
-            Brg:'',
-            TIN:'',
-            SwiftAddress:'',
-            PaymentsDue:'',
-            Name:'',
-            Designation:'',
-            ContactNo:'',
-            Email:'',
-            Contact:'',
-            CompanyName:'',
+            StakeholderName: fields.shStakeholderName,
+            StakeholderType: fields.StakeholderType,
+            Address: fields.shAddress,
+            ClientName: fields.shClientName,
+            Brg: fields.shBrg,
+            TIN: fields.shTIN,
+            SwiftAddress: fields.shSwiftAddress,
+            PaymentsDue: fields.shPaymentsDue,
+            Name: fields.shName,
+            Designation: fields.shDesignation,
+            ContactNo: fields.shContactNo,
+            Email: fields.shEmail,
+            Contact: fields.shContact,
+            CompanyName: fields.shCompanyName,
 
         }),
         headers: {
@@ -239,7 +241,7 @@ onSubmitClick(fields) {
 
     render() {
         return (
-            <div className = "row pr-3 pl-3">
+            <div className = "row pl-5 pt-3">
                 <div className = "col-11 form-box mt-2 mb-4">
                     <div className = "float-right">
                         <button type = "button" onClick = {this.openModal} className="btn btn-line-primary-bridge " data-toggle="modal" data-target=".bd-example-modal-lg" >Add Stakeholder</button>
@@ -271,6 +273,7 @@ onSubmitClick(fields) {
                                 shEmail: this.state.shEmail,
                                 shContact:this.state.shContact,
                                 shCompanyName: this.state.shCompanyName,
+                                fields: {}
                                /*
                                 shSystemAccess: this.state.SystemAccess,
                                 shSystemUserName: this.state.SystemUserName,
@@ -280,6 +283,8 @@ onSubmitClick(fields) {
 
                             }}
                             validationSchema={Yup.object().shape({
+                                shID : Yup.string()
+                                .required(''),
                                 shStakeholderName: Yup.string()
                                 .required('Stakeholder Name is required'),
                                 shStakeholderType:Yup.string()
@@ -318,7 +323,6 @@ onSubmitClick(fields) {
                             
                             })}
                             onSubmit = {fields => {
-                                //this.onMaterialClick(fields);
                                 this.onSubmitClick(fields);
                             }}
                             render = {({values, errors, status, touched, handleChange}) => (
@@ -443,19 +447,18 @@ onSubmitClick(fields) {
                                                 <ErrorMessage name = "shCompanyName" component = "div" className = "invalid-feedback"/>
                                             </div>
                                         </div>
-
+                                        <div className=" col-6 form-box mt-2">
+                                            <div className="form-group">
+                                                <button type="button" className="btn btn-primary-bridge-close" onClick={this.closeModal} >Cancel</button>
+                                                <button type="submit" className="btn btn-primary-bridge">Save </button>
+                                            </div>
+                                        </div>
 
                                     </div>
                                 </Form>
-                            )
-                         }
+                            ) }
                         />
-                                            <div className=" col-6 form-box mt-2">
-                                                <div className="form-group">
-                                                    <button type="button" className="btn btn-primary-bridge-close" onClick={this.closeModal} >Cancel</button>
-                                                    <button type="submit" className="btn btn-primary-bridge">Save </button>
-                                                </div>
-                                            </div>
+                                            
 
                         </Modal>
                      </div> 
