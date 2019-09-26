@@ -33,7 +33,7 @@ class TradeAgreements extends Component {
                 var arrOptions = [];
                 if (endPointUrl === END_POINT) {
                     for (var k = 0; k < data.length; k++) {
-                        arrOptions.push(<tr key={k}>
+                        arrOptions.push(<tr key = {k}>
                             <td>{data[k].Agreement}</td>
                             <td>{data[k].Description}</td>
                             <td>{data[k].Attachment}</td>

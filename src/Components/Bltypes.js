@@ -4,32 +4,32 @@ import { Formik, Field, Form, ErrorMessage,  } from 'formik';
 import * as Yup from 'yup';
 const { URL_BFF, ENDPOINTS } = require('./config');
 
-//var urlMaterialService = 'http://localhost:3010/1001/'
+//var BFF_URL = 'http://localhost:8081/';
+//let END_POINT = 'blType';
 
 class Bltypes extends Component {
     constructor(props) {
         super(props);
         this.state = {
             modalIsOpen: false,
-            blID:'',
-            blBlType:'',
-            blStrategy:'',
+            bltypeID:'',
+            bltypeType:'',
+            bltypeStrategy:'',
             blDescription:'',
-            blStatus:'',
+            bltypeStatus:'',
             fields:{}
 
 
         };
-        //this.onMaterialClick = this.onMaterialClick.bind(this);
         this.onSubmitClick = this.onSubmitClick.bind(this);
-        //this.handleChange = this.handleChange.bind(this);
+       // this.handleChange = this.handleChange.bind(this);
         this.openModal = this.openModal.bind(this);
         this.afterOpenModal = this.afterOpenModal.bind(this);
         this.closeModal = this.closeModal.bind(this);
         this.onEditModeLoadDetail = this.onEditModeLoadDetail.bind(this);
-        this.loadAppruals = this.loadAppruals.bind(this);
-        this.handleChangeSelect = this.handleChangeSelect.bind(this);
-        this.addApprual = this.addApprual.bind(this);
+        //this.loadAppruals = this.loadAppruals.bind(this);
+        //this.handleChangeSelect = this.handleChangeSelect.bind(this);
+        //this.addApprual = this.addApprual.bind(this);
 
     }
 
@@ -39,25 +39,24 @@ class Bltypes extends Component {
             .then((data) => {
 
                 var arrOptions = [];
-                for (var k =0; k < data.length; k++) {
+                for (var k = 0; k < data.length; k++) {
                     arrOptions.push(<tr key = {k}>
                         <td>{data[k].ID}</td>
                         <td>{data[k].BlTypes}</td>
                         <td>{data[k].Strategy}</td>
                         <td>{data[k].Description}</td>
                         <td>{data[k].Status}</td>
-                        <td> <button type = "button" value= {data[k].ID} className = "btn btn-primary-bridge-close" onClick = {this.onEditModeLoadDetail}>Edit bl</button></td>
+                        <td> <button type = "button" value= {data[k].ID} className = "btn btn-primary-bridge-close" onClick = {this.onEditModeLoadDetail}>Edit</button></td>
                     </tr>);
-                    break;
+                   // break;
                 }
-                this.setState({blTypeListoptions: arrOptions});
+                this.setState({blTypeListOptions: arrOptions});
 
             })
             .catch(console.log)
     }
 
     componentDidMount() {
-       // this.loadDropdown(urlMaterialService + 'bl')
        this.loadDropdown(URL_BFF + ENDPOINTS.BLTYPE)
 
     }
@@ -74,11 +73,11 @@ class Bltypes extends Component {
     closeModal() {
         this.setState({ modalIsOpen: false });
         this.setState({
-            blID:'',
-            blBlType:'',
-            blStrategy:'',
-            blDescription:'',
-            blStatus:'',
+            bltypeID:'',
+            bltypeBlType:'',
+            bltypeStrategy:'',
+            bltypeDescription:'',
+            bltypeStatus:'',
         });
     }
 
@@ -94,11 +93,11 @@ class Bltypes extends Component {
                 if (data.length !== 0) {
                     if(data) {
                         this.setState ({
-                            blID: data.ID,
-                            blBlType: data.BlType,
-                            blStrategy: data.Strategy,
-                            blDescription:data.Description,
-                            blStatus: data.Status
+                            bltypeID: data.ID,
+                            bltypeBlType: data.BlType,
+                            bltypeStrategy: data.Strategy,
+                            bltypeDescription:data.Description,
+                            bltypeStatus: data.Status
                         });
                         this.setState({isEditMode: true});
                         this.openModal();
@@ -146,10 +145,10 @@ class Bltypes extends Component {
             method: METHOD,
             body:JSON.stringify({
                 ID: ID,
-                BlTypes: fields.blBlType,
-                Strategy: fields.blStrategy,
-                Description: fields.blDescription,
-                Status: fields.blStatus
+                BlTypes: fields.bltypeBlType,
+                Strategy: fields.bltypeStrategy,
+                Description: fields.bltypeDescription,
+                Status: fields.bltypeStatus
 
             }),
             headers : {
@@ -215,23 +214,23 @@ render() {
                     <Formik 
                         enableReinitialize={true}
                         initialValues = {{
-                            blID: this.state.blID,
-                            blBlType: this.state.blBlType,
-                            blStrategy: this.state.blStrategy,
-                            blDescription: this.state.blDescription,
-                            blStatus: this.state.blStatus,
+                            bltypeID: this.state.bltypeID,
+                            bltypeBlType: this.state.bltypeBlType,
+                            bltypeStrategy: this.state.bltypeStrategy,
+                            bltypeDescription: this.state.bltypeDescription,
+                            bltypeStatus: this.state.bltypeStatus,
                             fields:{}
                         }}
                         validationSchema = {Yup.object().shape({
-                            blID:Yup.string()
+                            bltypeID:Yup.string()
                             .required('ID code is required'),
-                            blBlType:Yup.string()
+                            bltypeBlType:Yup.string()
                             .required('Bl type is required'),
-                            blStrategy:Yup.string()
+                            bltypeStrategy:Yup.string()
                             .required('Strategy field is required'),
-                            blDescription:Yup.string()
+                            bltypeDescription:Yup.string()
                             .required("Description is required"),
-                            blStatus:Yup.string()
+                            bltypeStatus:Yup.string()
                             .required("Status is required"),
                         })}
                         onSubmit = {fields => {
@@ -244,16 +243,16 @@ render() {
 
                                     <div className = "col-6 form-box mt-2">
                                         <div className = "form-group">
-                                            <label for="blID">ID</label>
+                                            <label for="bltypeID">ID</label>
                                             <input type="name" class="form-control readonly " id="" placeholder="Bl Types ID" readOnly ></input>
                                          </div>
                                     </div>
 
                                     <div className = "col-6 form-box mt-2">
                                         <div className = "form-group">
-                                            <label htmlFor = "blBlType">B/L Types</label>
-                                            <Field name = "blBlType" type = "text" className = {'form-control' + (errors.blBlType && touched.blBlType?' is-invalid':'')}/>
-                                            <ErrorMessage name = "blBlType" component = "div" className = "invalid-feedback"/>
+                                            <label htmlFor = "bltypeBlType">B/L Types</label>
+                                            <Field name = "bltypeBlType" type = "text" className = {'form-control' + (errors.bltypeBlType && touched.bltypeBlType?' is-invalid':'')}/>
+                                            <ErrorMessage name = "bltypeBlType" component = "div" className = "invalid-feedback"/>
                                         </div>
                                     </div>
                                      
@@ -261,28 +260,28 @@ render() {
                                      
                                     <div className = "col-6 form-box mt-2">
                                         <div className = "form-group">
-                                            <label htmlFor = "blStrategy">Strategy</label>
-                                            <Field name = "blStrategy" type = "text" className = {'form-control' + (errors.blStrategy && touched.blStrategy?' is-invalid':'')}/>
-                                            <ErrorMessage name = "blStrategy" component = "div" className = "invalid-feedback"/>
+                                            <label htmlFor = "bltypeStrategy">Strategy</label>
+                                            <Field name = "bltypeStrategy" type = "text" className = {'form-control' + (errors.bltypeStrategy && touched.bltypeStrategy?' is-invalid':'')}/>
+                                            <ErrorMessage name = "bltypeStrategy" component = "div" className = "invalid-feedback"/>
                                         </div>
                                     </div>
 
                                     <div className = "col-6 form-box mt-2">
                                         <div className = "form-group">
-                                            <label htmlFor = "blDescription">Description</label>
-                                            <Field name = "blDescription" type = "text" className = {'form-control' + (errors.blDescription && touched.blDescription?' is-invalid':'')}/>
-                                            <ErrorMessage name = "blDescription" component = "div" className = "invalid-feedback"/>
+                                            <label htmlFor = "bltypeDescription">Description</label>
+                                            <Field name = "bltypeDescription" type = "text" className = {'form-control' + (errors.bltypeDescription && touched.bltypeDescription?' is-invalid':'')}/>
+                                            <ErrorMessage name = "bltypeDescription" component = "div" className = "invalid-feedback"/>
                                         </div>
                                     </div>
                                     <div className = "col-6 form-box mt-2">
                                         <div className="form-group">
-                                                <label htmlFor="blStatus">Status</label>
-                                                        <Field name="blStatus" component="select" className={'form-control' + (errors.blStatus && touched.blStatus ? ' is-invalid' : '')} >
+                                                <label htmlFor="bltypeStatus">Status</label>
+                                                        <Field name="bltypeStatus" component="select" className={'form-control' + (errors.bltypeStatus && touched.bltypeStatus ? ' is-invalid' : '')} >
                                                             <option value="-"></option>
                                                             <option value="Yes">Active</option>
                                                             <option value="No">Inactive</option>
                                                         </Field>
-                                                        <ErrorMessage name="blStatus" component="div" className="invalid-feedback" />
+                                                        <ErrorMessage name="bltypeStatus" component="div" className="invalid-feedback" />
                                         </div>
                                     </div>
                                     </div>
