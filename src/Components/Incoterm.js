@@ -279,7 +279,7 @@ class Incoterm extends Component {
                 </div>
                 <div className="col-lg-11 table-wraper">
                     <table className="table table-hover">
-                        <thead className="material-table-th">
+                        <thead className="incoterm-table-th">
                             <tr>
                                 <th scope="col">ID</th>
                                 <th scope="col">Incorterm</th>

@@ -22,6 +22,8 @@ const HTTP_METHODS = {
   const MESURE = 'mesure'
   const MATERIAL_TYPE = 'materialtype'
   const COUNTRIES = 'countries'
+  const BLTYPE = 'blType'
+  const STAKEHOLDER = 'stakeHolder'
 
   const ENDPOINTS = {
     HSCODE,
@@ -34,9 +36,11 @@ const HTTP_METHODS = {
     MATERIAL,
     MESURE,
     MATERIAL_TYPE,
-    COUNTRIES
+    COUNTRIES,
+    BLTYPE,
+    STAKEHOLDER
   };
   
   module.exports = {
-    ENDPOINTS, URL_BFF,HTTP_METHODS
+    ENDPOINTS, URL_BFF, HTTP_METHODS
   };

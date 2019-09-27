@@ -17,6 +17,7 @@ class Bltypes extends Component {
             bltypeStrategy:'',
             blDescription:'',
             bltypeStatus:'',
+            isEditMode: false,
             fields:{}
 
 
@@ -37,7 +38,7 @@ class Bltypes extends Component {
         fetch(endPointUrl)
             .then(res => res.json())
             .then((data) => {
-
+console.log("blaaaaaaaa",data);
                 var arrOptions = [];
                 for (var k = 0; k < data.length; k++) {
                     arrOptions.push(<tr key = {k}>
@@ -52,12 +53,18 @@ class Bltypes extends Component {
                 }
                 this.setState({blTypeListOptions: arrOptions});
 
+            
+
             })
             .catch(console.log)
     }
 
     componentDidMount() {
+          console.log(URL_BFF + ENDPOINTS.BLTYPE)
+          console.log("didmout")
        this.loadDropdown(URL_BFF + ENDPOINTS.BLTYPE)
+
+       //console.log(URL_BFF + ENDPOINTS.BLTYPE)
 
     }
 
@@ -138,7 +145,7 @@ class Bltypes extends Component {
 
         if (this.state.isEditMode === true) {
             METHOD= 'PUT'
-            ID = fields.blID;
+            ID = fields.bltypeID;
         }
 
         fetch(URL_BFF + ENDPOINTS.BLTYPE, {
@@ -155,7 +162,7 @@ class Bltypes extends Component {
                 "Content-type":"application/json; charset=UTF-8"
             }
         }).then(response => {
-            this.setState({ isEditmode : false });
+            this.setState({ isEditMode : false });
             if (response.status === 200 || response.status === 201) {
                 alert('B/L Types is successfully saved');
             }else {
