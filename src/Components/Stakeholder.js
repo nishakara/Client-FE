@@ -75,7 +75,7 @@ class Stakeholder extends Component {
 
     }       
     componentDidMount() {
-       // this.loadDropdown(urlMaterialService+ 'sh')
+       // this.loadTableDataToState(urlMaterialService+ 'sh')
        this.loadDropdown(URL_BFF + ENDPOINTS.STAKEHOLDER)
     }
     openModal() {

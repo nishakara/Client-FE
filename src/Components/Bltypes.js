@@ -16,7 +16,8 @@ class BlTypes extends Component {
             blStrategy:'',
             blDescription:'',
             blStatus:'',
-            fields:{}
+            fields:{},
+            blTypesTableData: [],
 
 
         };
@@ -30,32 +31,16 @@ class BlTypes extends Component {
 
     }
 
-    loadDropdown = (endPointUrl) => {
-        fetch(endPointUrl)
-            .then(res => res.json())
-            .then((data) => {
-
-                var arrOptions = [];
-                for (var k =0; k < data.length; k++) {
-                    arrOptions.push(<tr key = {k}>
-                        <td>{data[k].ID}</td>
-                        <td>{data[k].BlTypes}</td>
-                        <td>{data[k].Strategy}</td>
-                        <td>{data[k].Description}</td>
-                        <td>{data[k].Status}</td>
-                        <td> <button type = "button" value= {data[k].ID} className = "btn btn-primary-bridge-close" onClick = {this.onEditModeLoadDetail}>Edit bl</button></td>
-                    </tr>);
-                    break;
-                }
-                this.setState({blTypeListoptions: arrOptions});
-
-            })
-            .catch(console.log)
-    }
 
     componentDidMount() {
-       // this.loadDropdown(urlMaterialService + 'bl')
-       this.loadDropdown(URL_BFF + ENDPOINTS.BL)
+       // this.loadDropdown(urlMaterialService + 'bl')\
+      fetch(URL_BFF + ENDPOINTS.BL)
+        .then (res => res.json())
+        .then((data)=> {
+          this.setState({blTypesTableData: data});
+        });
+
+       //this.loadDropdown(URL_BFF + ENDPOINTS.BL)
 
     }
 
@@ -81,7 +66,7 @@ class BlTypes extends Component {
 
     onEditModeLoadDetail(event) {
 
-        var Id = event.target.value;
+        var Id = event.target.id;
         this.setState({isEditmode : true});
         let url = URL_BFF + ENDPOINTS.BL + '/' + Id;
         fetch(url)
@@ -310,7 +295,18 @@ render() {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {this.state.blTypeListoptions}
+                                        {this.state.blTypesTableData.map(tableData => (
+                                          <tr>
+                                              <td>{tableData.ID}</td>
+                                              <td>{tableData.BlTypes}</td>
+                                              <td>{tableData.Strategy}</td>
+                                              <td>{tableData.Description}</td>
+                                              <td>{tableData.Status}</td>
+                                              <td> <button type = "button" id={tableData.ID}
+                                                           className = "btn btn-primary-bridge-close"
+                                                           onClick = {this.onEditModeLoadDetail}>Edit bl</button></td>
+                                          </tr>
+                                        ))}
                                     </tbody>
                                 </table>       
             </div>
