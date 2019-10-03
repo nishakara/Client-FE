@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import Modal from 'react-modal';
 import { Formik, Field, Form, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
-import Select from 'react-select'
+import Select from 'react-select';
+import { URL_BFF, ENDPOINTS } from './config';
 
 var BFF_URL = 'http://localhost:8081/';
 let END_POINT = 'hscode';
@@ -26,7 +27,8 @@ class HSCode extends Component {
             hsCess: '',
             hsExcise: '',
             hsSCL: '',
-            fields: {}
+            fields: {},
+            hscodeTableData : []
         };
         this.onSubmitClick = this.onSubmitClick.bind(this);
         this.handleChange = this.handleChange.bind(this);
@@ -35,7 +37,7 @@ class HSCode extends Component {
         this.onEditModeLoadDetail = this.onEditModeLoadDetail.bind(this);
 
     }
-
+/*
     loadDropdown = (endPointUrl) => {
         let url = BFF_URL + endPointUrl;
         fetch(url)
@@ -74,21 +76,29 @@ class HSCode extends Component {
             })
             .catch(console.log)
     }
+
+*/
     handleClick(item) {
     }
+
     componentDidMount() {
         this.loadDropdown('countries');
         this.loadDropdown(END_POINT);
+        fetch(URL_BFF + ENDPOINTS.HSCODE)
+        .then(res => res.json())
+        .then((data)=> {
+            this.setState({hscodeTableData:data});
+        })
     }
 
    
     onEditModeLoadDetail(event) {
-        var Id = event.target.value;
+        var Id = event.target.id;
 
         this.setState({ isEditMode: true });
 
         var listOfcountries = this.state.countryCodeOptions;
-        let url = BFF_URL + END_POINT + '/' + Id;
+        let url = BFF_URL + END_POINT.HSCODE + '/' + Id;
         fetch(url)
             .then(res => res.json())
             .then((data) => {
@@ -451,7 +461,27 @@ class HSCode extends Component {
                             </tr>
                         </thead>
                         <tbody>
-                            {this.state.hsCodeListOptions}
+                            {this.state.hscodeTableData.map(tableData => (
+                                <tr>
+                                    <td>{tableData.HsCode}</td>
+                                    <td>{tableData.Description}</td>
+                                    <td>{tableData.Unit}</td>
+                                    <td>{tableData.GenDuty}</td>
+                                    <td>{tableData.VAT}</td>
+                                    <td>{tableData.GenDuty}</td>
+                                    <td>{tableData.PAL}</td>
+                                    <td>{tableData.NTB}</td>
+                                    <td>{tableData.Cess}</td>
+                                    <td>{tableData.Excise}</td>
+                                    <td>{tableData.SCL}</td>
+                                    <td>{tableData.MType}</td>
+                                    <td>{tableData.Countries}</td>
+                                    <td><button type = "button" id = {tableData.HsCode}
+                                    className = "btn btn-primary-bridge-close"
+                                    onClick = { this.onEditModeLoadDetail}>Edit HsCode</button></td>
+
+                                </tr>
+                            ))}
                         </tbody>
                     </table>
                 </div>

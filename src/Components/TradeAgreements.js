@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import Modal from 'react-modal';
 import { Formik, Field, Form, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
-import Select from 'react-select'
+import Select from 'react-select';
+import {URL_BFF, ENDPOINTS } from './config';
 
 var BFF_URL = 'http://localhost:8081/';
 let END_POINT = 'tradeagreement';
@@ -15,7 +16,8 @@ class TradeAgreements extends Component {
             AgreementName: '',
             AgreementDescription: '',
             AgreementAttachment: '',
-            AgreementCountries: []
+            AgreementCountries: [],
+            tradeAgreementTableData: [],
         };
         this.onSumbmitClick = this.onSumbmitClick.bind(this);
         this.openModal = this.openModal.bind(this);
@@ -56,9 +58,14 @@ class TradeAgreements extends Component {
             .catch(console.log)
     }
 
+
     componentDidMount() {
-        this.loadDropdown(END_POINT);
         this.loadDropdown('countries');
+        fetch(URL_BFF + ENDPOINTS.TRADE_AGREEMENT)
+        .then(res => res.json())
+        .then((data)=> {
+            this.setState({tradeAgreementTableData: data});
+        })
     }
 
     openModal() {
@@ -78,7 +85,7 @@ class TradeAgreements extends Component {
         this.setState({ ...this.state, [name]: value });
     };
 onEditModeLoadDetail(event) {
-        var Id = event.target.value;
+        var Id = event.target.id;
         this.setState({ isEditMode: true });
         let url = BFF_URL + END_POINT + '/' + Id;
         fetch(url)
@@ -190,7 +197,7 @@ onEditModeLoadDetail(event) {
 
                                         <div className=" col-6 form-box mt-2">
                                             <div className="form-group">
-                                                <label htmlFor="AgreementName">Agreement </label>
+                                                <label htmlFor="AgreementName">Trade Agreement Name </label>
                                                 <Field name="AgreementName" type="text" value={values.AgreementName} onChange={handleChange} className={'form-control' + (errors.AgreementName && touched.AgreementName ? ' is-invalid' : '')} />
                                                 <ErrorMessage name="AgreementName" component="div" className="invalid-feedback" />
                                             </div>
@@ -199,29 +206,22 @@ onEditModeLoadDetail(event) {
 
                                         <div className=" col-6 form-box mt-2">
                                             <div className="form-group">
-                                                <label htmlFor="AgreementDescription">Description</label>
+                                                <label htmlFor="AgreementDescription">Agreement Description</label>
                                                 <Field name="AgreementDescription" type="text" value={values.AgreementDescription} onChange={handleChange} className={'form-control' + (errors.AgreementDescription && touched.AgreementDescription ? ' is-invalid' : '')} />
                                                 <ErrorMessage name="AgreementDescription" component="div" className="invalid-feedback" />
                                             </div>
 
                                         </div>
+                                        <br></br>
+                                        <br></br>
 
                                         <div className=" col-6 form-box mt-2">
-                                            <div className="form-group">
-                                                <label htmlFor="AgreementAttachment">Attachment</label>
-                                                <Field name="AgreementAttachment" type="text" value={values.AgreementAttachment} onChange={handleChange} className={'form-control' + (errors.AgreementAttachment && touched.AgreementAttachment ? ' is-invalid' : '')} />
-                                                <ErrorMessage name="AgreementAttachment" component="div" className="invalid-feedback" />
-                                            </div>
-
-                                        </div>
-                                        <div className=" col-6 form-box mt-2">
-                                            <div className="form-group">
-                                                <label htmlFor="AgreementCountries">Country</label>
-                                                <Select name="AgreementCountries" value={values.AgreementCountries} onChange={handleChange} isMulti={true} options={this.state.countryCodeOptions} />
-                                                <ErrorMessage name="AgreementCountries" component="div" className="invalid-feedback" />
+                                            <div className="form-group">  
+                                            <label htmlFor="AttachUpload">Attachments</label>  
+                                            <br></br>                                                
+                                                <input type="file" name="attachmentUpload" id="attachmentUpload"/>
                                             </div>
                                         </div>
-
     
                                         <div className=" col-6 form-box mt-2">
                                             <div className="form-group">
@@ -246,7 +246,19 @@ onEditModeLoadDetail(event) {
                             </tr>
                         </thead>
                         <tbody>
-                            {this.state.supplierListOptions}
+                            {this.state.tradeAgreementTableData.map(tableData => (
+                                <tr>
+                                    <td>{tableData.ID}</td>
+                                    <td>{tableData.Agreement}</td>
+                                    <td>{tableData.Description}</td>
+                                    <td>{tableData.Attachment}</td>
+                                    <td>{tableData.Countries}</td>
+                                    <td><button type = "button" id = {tableData.ID}
+                                    className = "btn btn-primary-bridge-close"
+                                    onClick = {this.onEditModeLoadDetail}>Edit Agreement</button></td>
+
+                                </tr>
+                            ))}
                         </tbody>
                     </table>
                 </div>
