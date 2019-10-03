@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import Modal from 'react-modal';
 import { Formik, Field, Form, ErrorMessage,  } from 'formik';
 import * as Yup from 'yup';
-const { URL_BFF, ENDPOINTS } = require('./config');
+import { URL_BFF, ENDPOINTS } from './config';
 
 //var urlMaterialService = 'http://localhost:3010/1001/'
 
