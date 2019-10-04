@@ -31,7 +31,8 @@ class BlTypes extends Component {
         fetch(URL_BFF + ENDPOINTS.BL)
         .then(res => res.json())
         .then((data)=> {
-            this.setState({blTypesTableData: data});
+            const tableData = data.reduce((acc, cur) => ({ ...acc, [cur.ID]: cur }), {});
+            this.setState({blTypesTableData: tableData});
         })
     }
     openModal() {
@@ -241,18 +242,21 @@ render() {
                                     </thead>
                                     <tbody>
                                      
-                                        {this.state.blTypesTableData.map(tableData => (
-                                          <tr>
-                                              <td>{tableData.ID}</td>
-                                              <td>{tableData.BlTypes}</td>
-                                              <td>{tableData.Strategy}</td>
-                                              <td>{tableData.Description}</td>
-                                              <td>{tableData.Status}</td>
-                                              <td> <button type = "button" id={tableData.ID}
-                                                           className = "btn btn-primary-bridge-close"
-                                                           onClick = {this.onEditModeLoadDetail}>Edit B/l Types</button></td>
-                                          </tr>
-                                        ))}                                     
+                                        {
+                                            Object.keys(this.state.blTypesTableData).map(key => (
+                                              <tr>
+                                                  <td>{key}</td>
+                                                  <td>{this.state.blTypesTableData[key].BlTypes}</td>
+                                                  <td>{this.state.blTypesTableData[key].Strategy}</td>
+                                                  <td>{this.state.blTypesTableData[key].Description}</td>
+                                                  <td>{this.state.blTypesTableData[key].Status}</td>
+                                                  <td> <button type = "button" id={key}
+                                                               className = "btn btn-primary-bridge-close"
+                                                               onClick = {this.onEditModeLoadDetail}>Edit B/l Types
+                                                  </button></td>
+                                              </tr>
+                                            ))
+                                        }
                                     </tbody>
                                 </table>       
             </div>
