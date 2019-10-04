@@ -53,7 +53,7 @@ class Stakeholder extends Component {
 
     }
     closeModal() {
-        this.setState({modalIsopen : false});
+        this.setState({modalIsOpen : false});
         this.setState ({
             shID:'',
             shStakeholderName:'',

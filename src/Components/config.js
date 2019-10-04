@@ -37,13 +37,8 @@ const HTTP_METHODS = {
     MESURE,
     MATERIAL_TYPE,
     COUNTRIES,
-<<<<<<< HEAD
     BL,
     STAKEHOLDER
-
-=======
-    BL
->>>>>>> 3f0c10bc0b605907a1113291daafcce5c6cc7fc0
   };
   
   module.exports = {

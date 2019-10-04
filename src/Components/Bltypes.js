@@ -79,6 +79,10 @@ class BlTypes extends Component {
             .catch(console.log)
     }
 
+    handleChange(evt) {
+        this.setState({[evt.target.name]:evt.target.value});
+    }
+
     onSubmitClick(fields) {
         var ID = null;
         var METHOD = 'POST'
@@ -143,7 +147,7 @@ render() {
                             blStrategy: this.state.blStrategy,
                             blDescription: this.state.blDescription,
                             blStatus: this.state.blStatus,
-                            fields:{}
+                            //fields:{}
                         }}
                         validationSchema = {Yup.object().shape({
                             blID:Yup.string()
@@ -162,7 +166,7 @@ render() {
                         }}
                         render = {({ values, errors, status, touched, handleChange }) => (
                             <Form>
-                                <div className=" col-12 form-box mt-4">   <h3 className="pb-3">B/L Types</h3>  </div>
+                                <div className=" col-12 form-box mt-4">   <h3 className="pb-3">B/L Types</h3> </div>
                                 <div className = "row pr-3 pl-3">
 
                                     <div className = "col-6 form-box mt-2">
@@ -224,7 +228,7 @@ render() {
 
                             </div>
 
-                            <div className = "col-lg-11 table-wrapper">
+                            <div className = "col-lg-11 table-wraper">
                                 <table className = "table table-hover">
                                     <thead className = "material-table-th">
                                         <tr>
