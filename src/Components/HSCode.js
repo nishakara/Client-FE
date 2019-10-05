@@ -2,8 +2,7 @@ import React, { Component } from 'react';
 import Modal from 'react-modal';
 import { Formik, Field, Form, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
-import Select from 'react-select';
-import { URL_BFF, ENDPOINTS } from './config';
+import Select from 'react-select'
 
 var BFF_URL = 'http://localhost:8081/';
 let END_POINT = 'hscode';
@@ -27,8 +26,7 @@ class HSCode extends Component {
             hsCess: '',
             hsExcise: '',
             hsSCL: '',
-            fields: {},
-            hscodeTableData : []
+            fields: {}
         };
         this.onSubmitClick = this.onSubmitClick.bind(this);
         this.handleChange = this.handleChange.bind(this);
@@ -37,7 +35,7 @@ class HSCode extends Component {
         this.onEditModeLoadDetail = this.onEditModeLoadDetail.bind(this);
 
     }
-/*
+
     loadDropdown = (endPointUrl) => {
         let url = BFF_URL + endPointUrl;
         fetch(url)
@@ -76,29 +74,21 @@ class HSCode extends Component {
             })
             .catch(console.log)
     }
-
-*/
     handleClick(item) {
     }
-
     componentDidMount() {
         this.loadDropdown('countries');
         this.loadDropdown(END_POINT);
-        fetch(URL_BFF + ENDPOINTS.HSCODE)
-        .then(res => res.json())
-        .then((data)=> {
-            this.setState({hscodeTableData:data});
-        })
     }
 
-   
+
     onEditModeLoadDetail(event) {
-        var Id = event.target.id;
+        var Id = event.target.value;
 
         this.setState({ isEditMode: true });
 
         var listOfcountries = this.state.countryCodeOptions;
-        let url = BFF_URL + END_POINT.HSCODE + '/' + Id;
+        let url = BFF_URL + END_POINT + '/' + Id;
         fetch(url)
             .then(res => res.json())
             .then((data) => {
@@ -174,7 +164,7 @@ class HSCode extends Component {
     handleChange(event) {
         this.setState({value: event.target.value});
       }
-    
+
     onSubmitClick(fields) {
 
         var arrCounties = [];
@@ -225,7 +215,7 @@ class HSCode extends Component {
     }
 
     render() {
-      
+
         return (
         <div className="row pr-3 pl-3">
                 <div className="col-11 form-box mt-2 mb-4">
@@ -287,7 +277,7 @@ class HSCode extends Component {
                                 this.onSubmitClick(fields);
                             }}
                             render={({ values, errors, status, touched, handleChange }) => (
-                                
+
                                 <Form>
                                     <div className=" col-12 form-box mt-4">   <h3 className="pb-3">HS Code</h3>  </div>
                                     <div className="row pr-3 pl-3">
@@ -316,7 +306,7 @@ class HSCode extends Component {
                                         <div className=" col-6 form-box mt-2">
                                             <div className="form-group">
                                                 <label htmlFor="hsDescription">Description</label>
-                                                <Field name="hsDescription" value={values.hsDescription} onChange={handleChange} type="text" className={'form-control' + (errors.hsDescription && touched.hsDescription ? ' is-invalid' : '')} /> 
+                                                <Field name="hsDescription" value={values.hsDescription} onChange={handleChange} type="text" className={'form-control' + (errors.hsDescription && touched.hsDescription ? ' is-invalid' : '')} />
                                                 <ErrorMessage name="hsDescription" component="div" className="invalid-feedback" />
                                             </div>
 
@@ -461,27 +451,7 @@ class HSCode extends Component {
                             </tr>
                         </thead>
                         <tbody>
-                            {this.state.hscodeTableData.map(tableData => (
-                                <tr>
-                                    <td>{tableData.HsCode}</td>
-                                    <td>{tableData.Description}</td>
-                                    <td>{tableData.Unit}</td>
-                                    <td>{tableData.GenDuty}</td>
-                                    <td>{tableData.VAT}</td>
-                                    <td>{tableData.GenDuty}</td>
-                                    <td>{tableData.PAL}</td>
-                                    <td>{tableData.NTB}</td>
-                                    <td>{tableData.Cess}</td>
-                                    <td>{tableData.Excise}</td>
-                                    <td>{tableData.SCL}</td>
-                                    <td>{tableData.MType}</td>
-                                    <td>{tableData.Countries}</td>
-                                    <td><button type = "button" id = {tableData.HsCode}
-                                    className = "btn btn-primary-bridge-close"
-                                    onClick = { this.onEditModeLoadDetail}>Edit HsCode</button></td>
-
-                                </tr>
-                            ))}
+                            {this.state.hsCodeListOptions}
                         </tbody>
                     </table>
                 </div>
