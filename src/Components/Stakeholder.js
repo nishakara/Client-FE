@@ -2,9 +2,8 @@ import React, {Component} from 'react';
 import Modal from 'react-modal';
 import { Formik, Field, Form, ErrorMessage, yupToFormErrors } from 'formik';
 import * as Yup from 'yup';
-const { URL_BFF, ENDPOINTS } = require('./config');
+import { URL_BFF, ENDPOINTS } from './config';
 
-//var urlMaterialService = 'http://localhost:3010/1001/'
 
 class Stakeholder extends Component {
     constructor (props) {
@@ -28,9 +27,9 @@ class Stakeholder extends Component {
             shSystemAccess:'',
             shSystemUserName:'',
             shAccessType:'',
-            fields :{}
+            fields :{},
+            stakeholderTableData : [],
         };
-        //this.onMaterialClick = this.onMaterialClick.bind(this);
         this.onSubmitClick = this.onSubmitClick.bind(this);
         this.handleChange = this.handleChange.bind(this);
         this.openModal = this.openModal.bind(this);
@@ -38,45 +37,13 @@ class Stakeholder extends Component {
         this.closeModal = this.closeModal.bind(this);
         this.onEditModeLoadDetail = this.onEditModeLoadDetail.bind(this);
    
-    }
-
-    loadDropdown = (endPointUrl) => {
-        fetch(endPointUrl)
-            .then (res => res.json())
-            .then((data)=> {
-
-                var arrOptions = [];
-                for(var k = 0; k < data.length; k++) {   arrOptions.push(<tr key={k}>
-                    <td>{data[k].ID}</td>
-                    <td>{data[k].StakeholderName}</td>
-                    <td>{data[k].StakeholderType}</td>
-                    <td>{data[k].Address}</td>
-                    <td>{data[k].ClientName}</td>
-                    <td>{data[k].BuisnessRegistration}</td>
-                    <td>{data[k].TIN}</td>
-                    <td>{data[k].SwiftAddress}</td>
-                    <td>{data[k].PaymentDue}</td>
-                    <td>{data[k].Name}</td>
-                    <td>{data[k].Designation}</td>
-                    <td>{data[k].ContactNo}</td>
-                    <td>{data[k].Email}</td>
-                    <td>{data[k].Contact}</td>
-                    <td>{data[k].CompanyName}</td>
-                    <td><button type = "button" value = {data[k].ID} className = "btn btn-primary-bridge-close" onClick = { this.onEditModeLoadDetail}>Edit stakeholder</button></td>
-
-                    </tr>);
-                 
-                        break;
-                }
-                this.setState({shCodeListOptions: arrOptions});
-
-            })
-            .catch(console.log)
-
-    }       
+    }    
     componentDidMount() {
-       // this.loadDropdown(urlMaterialService+ 'sh')
-       this.loadDropdown(URL_BFF + ENDPOINTS.STAKEHOLDER)
+       fetch(URL_BFF + ENDPOINTS.STAKEHOLDER)
+       .then(res => res.json())
+       .then((data)=> {
+           this.setState({stakeholderTableData : data});
+       })
     }
     openModal() {
         this.setState({modalIsOpen : true });
@@ -86,7 +53,7 @@ class Stakeholder extends Component {
 
     }
     closeModal() {
-        this.setState({modalIsopen : false});
+        this.setState({modalIsOpen : false});
         this.setState ({
             shID:'',
             shStakeholderName:'',
@@ -108,10 +75,8 @@ class Stakeholder extends Component {
 
     }
 
-    ////=
-
     onEditModeLoadDetail(event) {
-        var Id = event.target.value;
+        var Id = event.target.id;
         this.setState({isEditMode: true});
         let url = URL_BFF + ENDPOINTS.STAKEHOLDER + '/' + Id;
         fetch(url)
@@ -149,46 +114,6 @@ class Stakeholder extends Component {
         this.setState({[evt.target.name]:evt.target.value});
     }
 
-/*    onMaterialClick(fields) {
-        console.error(fields);
-        alert('1--SUCCESS!! :-)\n\n' + JSON.stringify(fields, null, 4))
-        var shVendorName = null;
-        var METHOD = 'POST'
-        if (fields.shStakeholder !== 'NEW_HS_CODE') {
-            METHOD = 'PUT';
-            shVendorName = fields.shStakeholder;
-        }
-        fetch(urlMaterialService + 'sh', {
-            method: METHOD,
-            body: JSON.stringify({
-                VendorName: fields.shVendorName,
-                TypeOfvendor: fields.shTypeofVendor,
-                Address:  fields.shAddress,
-                ClientName: fields.shClientName,
-                BuisnessRegistration: fields.shBuisnessRegistartion,
-                TIN:fields.shTIN,
-                SwiftAddress : fields.shSwiftAddress,
-                PaymentDue : fields.shPaymentDue
-            }),
-            headers:{
-                "Content-type": "application/json; charset=UTF-8"
-            }
-        }).then(response => {
-            if(response.status === 200 || response.status ===201) {
-                alert('Stakeholder code is succcessfully saved');
-            }
-            else
-            {
-                alert('An error occured while saving please try again');
-            }
-            return response.json()
-        }).then(json => {
-            this.setState({
-                user: json
-            });
-        });
-    }
-*/
 
 onSubmitClick(fields) {
     var ID = null;
@@ -318,7 +243,6 @@ onSubmitClick(fields) {
                             
                             })}
                             onSubmit = {fields => {
-                                //this.onMaterialClick(fields);
                                 this.onSubmitClick(fields);
                             }}
                             render = {({values, errors, status, touched, handleChange}) => (
@@ -452,7 +376,7 @@ onSubmitClick(fields) {
                         />
                                             <div className=" col-6 form-box mt-2">
                                                 <div className="form-group">
-                                                    <button type="button" className="btn btn-primary-bridge-close" onClick={this.closeModal} >Cancel</button>
+                                                    <button type="button" className="btn btn-primary-bridge-close" onClick={this.closeModal}>Cancel</button>
                                                     <button type="submit" className="btn btn-primary-bridge">Save </button>
                                                 </div>
                                             </div>
@@ -474,7 +398,23 @@ onSubmitClick(fields) {
                               </tr>
                           </thead>
                           <tbody>
-                              {this.state.shListOptions}
+                              {this.state.stakeholderTableData.map(tableData => (
+                                  <tr>
+                                      <td>{tableData.ID}</td>
+                                      <td>{tableData.shStakeholderName}</td>
+                                      <td>{tableData.shStakeholderType}</td>
+                                      <td>{tableData.Address}</td>
+                                      <td>{tableData.ClientName}</td>
+                                      <td>{tableData.Brg}</td>
+                                      <td>{tableData.TIN}</td>
+                                      <td>{tableData.SwiftAddress}</td>
+                                      <td>{tableData.PaymentsDue}</td>
+                                      <td><button type = "button" id={tableData.ID}
+                                      className = "btn btn-primary-bridge-close"
+                                      onClick = {this.onEditModeLoadDetail}>Edit Stakeholder</button></td>
+                                      
+                                  </tr>
+                              ))}
                           </tbody>
                       </table>
                   </div>

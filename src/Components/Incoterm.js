@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import Modal from 'react-modal';
 import { Formik, Field, Form, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
-const { URL_BFF, ENDPOINTS } = require('./config');
+//const { URL_BFF, ENDPOINTS } = require('./config');
+import { URL_BFF, ENDPOINTS } from './config';
 
 class Incoterm extends Component {
     constructor(props) {
@@ -16,7 +17,8 @@ class Incoterm extends Component {
             incotermInsurance: '',
             incotermStatus: '',
             isEditMode: false,
-            fields: {}
+            fields: {},
+            incotermTableData : [],
             
         };
         this.onSubmitClick = this.onSubmitClick.bind(this);
@@ -25,33 +27,16 @@ class Incoterm extends Component {
         this.closeModal = this.closeModal.bind(this);
         this.onEditModeLoadDetail = this.onEditModeLoadDetail.bind(this);
     }
-    
-    loadDropdown = (endPointUrl) => {
-        fetch(endPointUrl)
-            .then(res => res.json())
-            .then((data) => {
+  
 
-                var arrOptions = [];
-                for (var k = 0; k < data.length; k++) {
-                    arrOptions.push(<tr key={k}>
-                        <td>{data[k].ID}</td>
-                        <td>{data[k].Incoterm}</td>
-                        <td>{data[k].Description}</td>
-                        <td>{data[k].Freight}</td>
-                        <td>{data[k].Insurance}</td>
-                        <td>{data[k].Status}</td>
-                        <td> <button type="button" value={data[k].ID} className="btn btn-primary-bridge-close" onClick={this.onEditModeLoadDetail}>Edit-X</button></td>
-                    </tr>);
-
-                }
-                this.setState({ incotermListOptions: arrOptions });
-            })
-            .catch(console.log)
-    }
 
     componentDidMount() {
 
-        this.loadDropdown(URL_BFF + ENDPOINTS.INCOTERM)
+       fetch(URL_BFF + ENDPOINTS.INCOTERM)
+       .then(res => res.json())
+       .then((data) => {
+           this.setState({incotermTableData: data})
+       })
 
     }
 
@@ -80,7 +65,7 @@ class Incoterm extends Component {
     
 
     onEditModeLoadDetail(event) {
-        var Id = event.target.value;
+        var Id = event.target.id;
 
         this.setState({ isEditMode: true });
 
@@ -290,7 +275,19 @@ class Incoterm extends Component {
                             </tr>
                         </thead>
                         <tbody>
-                            {this.state.incotermListOptions}
+                           {this.state.incotermTableData.map(tableData => (
+                               <tr>
+                                   <td>{tableData.ID}</td>
+                                   <td>{tableData.Incorterm}</td>
+                                   <td>{tableData.Description}</td>
+                                   <td>{tableData.Freight}</td>
+                                   <td>{tableData.Insurance}</td>
+                                   <td>{tableData.Status}</td>
+                                   <td><button type = "button" id = {tableData.ID}
+                                   className = "btn btn-primary-bridge-close"
+                                   onClick = {this.onEditModeLoadDetail}> Edit Incoterm </button></td>
+                               </tr>
+                           ))}
                         </tbody>
                     </table>
                 </div>

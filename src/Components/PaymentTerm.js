@@ -3,12 +3,10 @@ import Modal from 'react-modal';
 import { Formik, Field, Form, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 //import { thisExpression } from '@babel/types';
-const { URL_BFF, ENDPOINTS } = require('./config');
+//const { URL_BFF, ENDPOINTS } = require('./config');
+import { URL_BFF, ENDPOINTS } from './config';
 
 class PaymentTerm extends Component {
-
-    
-
     constructor(props) {
         super(props);
         this.state = {
@@ -21,7 +19,8 @@ class PaymentTerm extends Component {
             payTermClient :'',
             payTermSupplier :'',
             isEditMode: false,
-            fields : {}
+            fields : {},
+            paymentTermTableData: [],
         };
 
         this.onSubmitClick = this.onSubmitClick.bind(this);
@@ -32,34 +31,15 @@ class PaymentTerm extends Component {
         this.onEditModeLoadDetail = this.onEditModeLoadDetail.bind(this);
   
     }
-    loadDropdown = (endPointUrl) => {
-        fetch(endPointUrl)
-            .then(res => res.json())
-            .then((data) => {
-                
-                var arrOptions = [];
-                for (var k = 0; k < data.length; k++) {
-                    arrOptions.push(<tr key={k}>
-                        <td>{data[k].ID}</td>
-                        <td>{data[k].PaymentTerms}</td>
-                        <td>{data[k].Due}</td>
-                        <td>{data[k].DueBasedOn}</td>
-                        <td>{data[k].Status}</td>
-                        <td>{data[k].PaymentTermType}</td>
-                        <td>{data[k].Client}</td>
-                        <td>{data[k].Supplier}</td>
-                        <td> <button type= "button" value= {data[k].ID} className ="btn btn-primary-bridge-close" onClick = {this.onEditModeLoadDetail}>Edit</button></td>
-                    </tr>);
 
-                    //break;
-                }
-                this.setState({payTermCodeListOptions: arrOptions});
-            })
-            .catch(console.log)
-    }
 
     componentDidMount() {
-        this.loadDropdown(URL_BFF + ENDPOINTS.PAYTERM)
+        //this.loadDropdown(URL_BFF + ENDPOINTS.PAYTERM)
+        fetch(URL_BFF + ENDPOINTS.PAYMENT_TERM)
+        .then(res => res.json())
+        .then((data)=> {
+            this.setState({paymentTermTableData: data});
+        })
     }
 
     openModal() {
@@ -85,7 +65,8 @@ class PaymentTerm extends Component {
     }
 
     onEditModeLoadDetail(event) {
-        var Id = event.target.value;
+        //var Id = event.target.value;
+        var Id = event.target.id;
         this.setState({ isEditMode: true });
 
         let url = URL_BFF + ENDPOINTS.PAYTERM + '/' + Id;
@@ -331,7 +312,21 @@ class PaymentTerm extends Component {
                             </tr>
                         </thead>
                         <tbody>
-                            {this.state.payTermCodeListOptions}
+                            {this.state.paymentTermTableData.map(tableData => (
+                                <tr>
+                                    <td>{tableData.ID}</td>
+                                    <td>{tableData.PaymentTerms}</td>
+                                    <td>{tableData.Due}</td>
+                                    <td>{tableData.DueBasedOn}</td>
+                                    <td>{tableData.Status}</td>
+                                    <td>{tableData.PaymentTermType}</td>
+                                    <td>{tableData.Client}</td>
+                                    <td>{tableData.Supplier}</td>
+                                    <td><button type = "button" id = {tableData.ID}
+                                    className = "btn btn-primary-bridge-close"
+                                    onClick = {this.onEditModeLoadDetail}>edit Payment Terms</button></td>
+                                </tr>
+                            ))}
                         </tbody>
                     </table>
                 </div>

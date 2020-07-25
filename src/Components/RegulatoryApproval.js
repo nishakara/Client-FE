@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import Modal from 'react-modal';
 import { Formik, Field, Form, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
+import { URL_BFF, ENDPOINTS } from './config';
 
 var BFF_URL = 'http://localhost:8081/';
 let END_POINT = 'regapproval';
@@ -28,7 +29,9 @@ class RegulatoryApproval extends Component {
             ApprovalList:[],
             Approvalattachments: [],
             AttachmentsOpetationRows: '',
-            fields: {}
+            fields: {},
+
+            reglatoryApprovalTableData:[],
         };
         this.onSubmitClick = this.onSubmitClick.bind(this);
         this.openModal = this.openModal.bind(this);
@@ -41,7 +44,7 @@ class RegulatoryApproval extends Component {
         this.onResetRow = this.onResetRow.bind(this);
         
     }
-
+/*
     loadDropdown = (endPointUrl) => {
         fetch(endPointUrl)
             .then(res => res.json())
@@ -65,9 +68,14 @@ class RegulatoryApproval extends Component {
             })
             .catch(console.log)
     }
-
+*/
     componentDidMount() {
-        this.loadDropdown(BFF_URL + END_POINT)
+        //this.loadDropdown(BFF_URL + END_POINT)
+    fetch(URL_BFF + ENDPOINTS.REGAPPROVAL)
+    .then(res => res.json())
+    .then((data)=> {
+        this.setState({reglatoryApprovalTableData: data})
+    })
     }
 
     openModal() {
@@ -89,9 +97,9 @@ class RegulatoryApproval extends Component {
     }
 
     onEditModeLoadDetail(event) {
-        var Id = event.target.value;
+        var Id = event.target.id;
         this.setState({ isEditMode: true });
-        let url = BFF_URL + END_POINT + '/' + Id;
+        let url = BFF_URL + END_POINT.REGAPPROVAL + '/' + Id;
         fetch(url)
             .then(res => res.json())
             .then((data) => {
@@ -212,7 +220,7 @@ class RegulatoryApproval extends Component {
             arrDocuments.push({ ID: attachment.ID, RegulatoryApproval_ID: APPROVAL_ID, DocumentName: attachment.document, Description: attachment.description, Mandatory: attachment.mandatory });
         }
 
-        fetch(BFF_URL + END_POINT, {
+        fetch(BFF_URL + END_POINT.REGAPPROVAL, {
             method: METHOD,
             body: JSON.stringify({
                 ID: APPROVAL_ID,
@@ -451,7 +459,21 @@ class RegulatoryApproval extends Component {
                             </tr>
                         </thead>
                         <tbody>
-                            {this.state.approvalListOptions}
+                           { this.state.reglatoryApprovalTableData.map(tableData=> (
+                               <tr>
+                                  <td>{tableData.ID}</td>
+                                  <td>{tableData.Institute}</td>
+                                  <td>{tableData.TestName}</td>
+                                  <td>{tableData.ReleaseTimeInDays}</td>
+                                  <td>{tableData.SampleRequired}</td>
+                                  <td>{tableData.AverageReleaseTime}</td>
+                                  <td>{tableData.ObtainingStage}</td>
+                                  <td> <button type = "button" id = {tableData.ID}
+                                  className = "btn btn-primary-bridge-close"
+                                  onClick = {this.onEditModeLoadDetail}>Edit Regulatory Approval</button></td>
+                               </tr>
+                            ))
+                           }
                         </tbody>
                     </table>
                 </div>

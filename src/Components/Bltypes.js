@@ -2,9 +2,8 @@ import React, {Component} from 'react';
 import Modal from 'react-modal';
 import { Formik, Field, Form, ErrorMessage,  } from 'formik';
 import * as Yup from 'yup';
-const { URL_BFF, ENDPOINTS } = require('./config');
+import { URL_BFF, ENDPOINTS } from './config';
 
-//var urlMaterialService = 'http://localhost:3010/1001/'
 
 class BlTypes extends Component {
     constructor(props) {
@@ -16,49 +15,26 @@ class BlTypes extends Component {
             blStrategy:'',
             blDescription:'',
             blStatus:'',
-            fields:{}
+            fields:{},
+            blTypesTableData: [],
 
 
         };
-        //this.onMaterialClick = this.onMaterialClick.bind(this);
         this.onSubmitClick = this.onSubmitClick.bind(this);
-        //this.handleChange = this.handleChange.bind(this);
         this.openModal = this.openModal.bind(this);
         this.afterOpenModal = this.afterOpenModal.bind(this);
         this.closeModal = this.closeModal.bind(this);
         this.onEditModeLoadDetail = this.onEditModeLoadDetail.bind(this);
 
     }
-
-    loadDropdown = (endPointUrl) => {
-        fetch(endPointUrl)
-            .then(res => res.json())
-            .then((data) => {
-
-                var arrOptions = [];
-                for (var k =0; k < data.length; k++) {
-                    arrOptions.push(<tr key = {k}>
-                        <td>{data[k].ID}</td>
-                        <td>{data[k].BlTypes}</td>
-                        <td>{data[k].Strategy}</td>
-                        <td>{data[k].Description}</td>
-                        <td>{data[k].Status}</td>
-                        <td> <button type = "button" value= {data[k].ID} className = "btn btn-primary-bridge-close" onClick = {this.onEditModeLoadDetail}>Edit bl</button></td>
-                    </tr>);
-                    break;
-                }
-                this.setState({blTypeListoptions: arrOptions});
-
-            })
-            .catch(console.log)
-    }
-
     componentDidMount() {
-       // this.loadDropdown(urlMaterialService + 'bl')
-       this.loadDropdown(URL_BFF + ENDPOINTS.BL)
-
+        fetch(URL_BFF + ENDPOINTS.BL)
+        .then(res => res.json())
+        .then((data)=> {
+            const tableData = data.reduce((acc, cur) => ({ ...acc, [cur.ID]: cur }), {});
+            this.setState({blTypesTableData: tableData});
+        })
     }
-
     openModal() {
         this.setState({ modalIsOpen: true });
     }
@@ -80,8 +56,7 @@ class BlTypes extends Component {
     }
 
     onEditModeLoadDetail(event) {
-
-        var Id = event.target.value;
+        var Id = event.target.id;
         this.setState({isEditmode : true});
         let url = URL_BFF + ENDPOINTS.BL + '/' + Id;
         fetch(url)
@@ -105,31 +80,10 @@ class BlTypes extends Component {
             .catch(console.log)
     }
 
-    /*handleChange(evt) {
-        // check it out: we get the evt.target.name (which will be either "email" or "password")
-        // and use it to target the key on our `state` object with the same name, using bracket syntax
-        //this.setState({ [evt.target.name]: evt.target.value });
-    }*/
+    handleChange(evt) {
+        this.setState({[evt.target.name]:evt.target.value});
+    }
 
-   /* onMaterialClick(fields) {
-        console.error(fields);
-        alert('1--SUCCESS!! :-)\n\n' + JSON.stringify(fields, null, 4))
-        var blID = null;
-        var METHOD = 'POST'
-        if (fields.blBlTypes !== 'NEW_BL_TYPES') {
-            METHOD = 'PUT';
-            blID = fields.blBlTypes;
-        }
-        fetch(urlMaterialService + 'bl', {
-            method: METHOD,
-            body: JSON.stringify({
-                ID: fields.blID,
-                BlTypes: fields.BlTypes,
-                Strategy: fields.Strategy,
-                Description: fields.Description,
-                Status: fields.Status
-    */
-/////--
     onSubmitClick(fields) {
         var ID = null;
         var METHOD = 'POST'
@@ -168,29 +122,6 @@ class BlTypes extends Component {
         });
     }
 
-/*
-            }),
-            headers: {
-                "Content-type": "application/json; charset=UTF-8"
-            }
-        
-        }).then(response => {
-            this.setState({isEditMode : false });
-            if (response.status === 200 || response.status === 201) {
-                alert('Bl Types is success fully saved');
-            }else{
-                alert('An error occurred while saving please try again');
-            }
-            return response.json()
-        }).then(json => {
-            this.setState({
-                user :json
-            });
-        });
-
-}
-
-*/
 
 render() {
     return(
@@ -217,7 +148,7 @@ render() {
                             blStrategy: this.state.blStrategy,
                             blDescription: this.state.blDescription,
                             blStatus: this.state.blStatus,
-                            fields:{}
+                            //fields:{}
                         }}
                         validationSchema = {Yup.object().shape({
                             blID:Yup.string()
@@ -236,7 +167,7 @@ render() {
                         }}
                         render = {({ values, errors, status, touched, handleChange }) => (
                             <Form>
-                                <div className=" col-12 form-box mt-4">   <h3 className="pb-3">B/L Types</h3>  </div>
+                                <div className=" col-12 form-box mt-4">   <h3 className="pb-3">B/L Types</h3> </div>
                                 <div className = "row pr-3 pl-3">
 
                                     <div className = "col-6 form-box mt-2">
@@ -288,7 +219,7 @@ render() {
                                 />
                                     <div className=" col-6 form-box mt-2">
                                             <div className="form-group">
-                                                    <button type="button" className="btn btn-primary-bridge-close" onClick={this.closeModal} >Cancel</button>
+                                                    <button type="button" className="btn btn-primary-bridge-close" onClick={this.closeModal}>Cancel</button>
                                                     <button type="submit" className="btn btn-primary-bridge">Save </button>
                                             </div>
                                     </div>
@@ -298,7 +229,7 @@ render() {
 
                             </div>
 
-                            <div className = "col-lg-11 table-wrapper">
+                            <div className = "col-lg-11 table-wraper">
                                 <table className = "table table-hover">
                                     <thead className = "material-table-th">
                                         <tr>
@@ -310,7 +241,22 @@ render() {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {this.state.blTypeListoptions}
+                                     
+                                        {
+                                            Object.keys(this.state.blTypesTableData).map(key => (
+                                              <tr>
+                                                  <td>{key}</td>
+                                                  <td>{this.state.blTypesTableData[key].BlTypes}</td>
+                                                  <td>{this.state.blTypesTableData[key].Strategy}</td>
+                                                  <td>{this.state.blTypesTableData[key].Description}</td>
+                                                  <td>{this.state.blTypesTableData[key].Status}</td>
+                                                  <td> <button type = "button" id={key}
+                                                               className = "btn btn-primary-bridge-close"
+                                                               onClick = {this.onEditModeLoadDetail}>Edit B/l Types
+                                                  </button></td>
+                                              </tr>
+                                            ))
+                                        }
                                     </tbody>
                                 </table>       
             </div>

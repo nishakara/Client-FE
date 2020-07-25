@@ -9,19 +9,21 @@ const HTTP_METHODS = {
     DELETE: 'DELETE',
   };
   
- const URL_BFF = "http://localhost:8081/"
+ const URL_BFF = "http://localhost:8081/";
 
-  const HSCODE = 'hscode'
-  const REGAPPROVAL = 'regapproval'
-  const SUPPLIER = 'supplier'
-  const INCOTERM = 'incoterm'
-  const BANK = 'bank'
-  const PAYMENT_TERM = 'paymentterm'
-  const TRADE_AGREEMENT = 'tradeagreement'
-  const MATERIAL = 'material'
-  const MESURE = 'mesure'
-  const MATERIAL_TYPE = 'materialtype'
-  const COUNTRIES = 'countries'
+  const HSCODE = 'hscode';
+  const REGAPPROVAL = 'regapproval';
+  const SUPPLIER = 'supplier';
+  const INCOTERM = 'incoterm';
+  const BANK = 'bank';
+  const PAYMENT_TERM = 'paymentsTerm';
+  const TRADE_AGREEMENT = 'tradeagreement';
+  const MATERIAL = 'material';
+  const MESURE = 'mesure';
+  const MATERIAL_TYPE = 'materialtype';
+  const COUNTRIES = 'countries';
+  const BL = 'blType';
+  const STAKEHOLDER = 'stakeHolder'
 
   const ENDPOINTS = {
     HSCODE,
@@ -34,7 +36,9 @@ const HTTP_METHODS = {
     MATERIAL,
     MESURE,
     MATERIAL_TYPE,
-    COUNTRIES
+    COUNTRIES,
+    BL,
+    STAKEHOLDER
   };
   
   module.exports = {

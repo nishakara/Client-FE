@@ -81,7 +81,7 @@ class HSCode extends Component {
         this.loadDropdown(END_POINT);
     }
 
-   
+
     onEditModeLoadDetail(event) {
         var Id = event.target.value;
 
@@ -164,7 +164,7 @@ class HSCode extends Component {
     handleChange(event) {
         this.setState({value: event.target.value});
       }
-    
+
     onSubmitClick(fields) {
 
         var arrCounties = [];
@@ -215,7 +215,7 @@ class HSCode extends Component {
     }
 
     render() {
-      
+
         return (
         <div className="row pr-3 pl-3">
                 <div className="col-11 form-box mt-2 mb-4">
@@ -277,7 +277,7 @@ class HSCode extends Component {
                                 this.onSubmitClick(fields);
                             }}
                             render={({ values, errors, status, touched, handleChange }) => (
-                                
+
                                 <Form>
                                     <div className=" col-12 form-box mt-4">   <h3 className="pb-3">HS Code</h3>  </div>
                                     <div className="row pr-3 pl-3">
@@ -306,7 +306,7 @@ class HSCode extends Component {
                                         <div className=" col-6 form-box mt-2">
                                             <div className="form-group">
                                                 <label htmlFor="hsDescription">Description</label>
-                                                <Field name="hsDescription" value={values.hsDescription} onChange={handleChange} type="text" className={'form-control' + (errors.hsDescription && touched.hsDescription ? ' is-invalid' : '')} /> 
+                                                <Field name="hsDescription" value={values.hsDescription} onChange={handleChange} type="text" className={'form-control' + (errors.hsDescription && touched.hsDescription ? ' is-invalid' : '')} />
                                                 <ErrorMessage name="hsDescription" component="div" className="invalid-feedback" />
                                             </div>
 
